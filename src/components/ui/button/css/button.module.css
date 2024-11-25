@@ -1,0 +1,34 @@
+.btn {
+  font-size: calc(var(--scale, 1) * 1rem);
+  padding: 0.5em 1.25em;
+  /* background-color: orangered; */
+  border: 0;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  line-height: 1;
+  cursor: pointer;
+}
+.btn__xxs {
+  --scale: 0.55;
+}
+.btn__xs {
+  --scale: 0.75;
+}
+.btn__sm {
+  --scale: 0.9;
+}
+.btn__m {
+  --scale: 1;
+}
+.btn__lg {
+  --scale: 1.3;
+}
+.btn__xl {
+  --scale: 1.65;
+}
+
+.btn__dark {
+  background-color: var();
+  color: white;
+}
