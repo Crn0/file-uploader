@@ -1,15 +1,27 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import App from '../App';
+import App from '../pages/app';
+import Register from '../pages/register';
+import Login from '../pages/login';
+import loaders from '../loaders';
+import actions from '../actions';
 
-const Router = () => {
-    const router = createBrowserRouter([
-        {
-            path: '/',
-            element: <App />,
-        },
-    ]);
+const { registerAction, loginAction } = actions;
 
-    return <RouterProvider router={router} />;
-};
+const routes = [
+  {
+    path: '/',
+    loader: loaders.appLoader.getUser,
+    element: <App />,
+  },
+  {
+    path: '/register',
+    action: registerAction.register,
+    element: <Register />,
+  },
+  {
+    path: '/login',
+    action: loginAction.login,
+    element: <Login />,
+  },
+];
 
-export default Router;
+export default routes;
