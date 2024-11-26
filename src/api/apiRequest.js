@@ -79,14 +79,11 @@ export default class ApiRequest {
 
     // if the user login using google open id connect
     // there will be no acess token so we need to hit the
-    // refresh token end point to get a new token and user meta
+    // refresh token end point to get a new token
     if (!token) {
       const [_, rData] = await this.#provider.refresh();
 
-      this.#provider.user = rData.user;
       this.#provider.token = rData.accessToken;
-
-      token = this.#provider.token;
     }
 
     try {
@@ -94,10 +91,9 @@ export default class ApiRequest {
     } catch (e) {
       if (e.httpCode !== 401) throw e;
 
-      // if we received a 401 error refresh the token and get the user meta
+      // if we received a 401 error refresh the token
       const [_, rData] = await this.#provider.refresh();
 
-      this.#provider.user = rData.user;
       this.#provider.token = rData.accessToken;
 
       token = this.#provider.token;
