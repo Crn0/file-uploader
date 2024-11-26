@@ -2,6 +2,7 @@ import { replace } from 'react-router-dom';
 import AuthProvider from '../../provider/auth.provider';
 import registerService from './register.service';
 import ApiRequest from '../../api/apiRequest';
+import APIError from '../../errors/api.error';
 
 const BASE_URL = import.meta.env.VITE_SERVER_URL;
 
@@ -19,7 +20,9 @@ const checkAuth = async () => {
 
     return replace('/');
   } catch (e) {
-    return e;
+    if (e instanceof APIError) return e;
+
+    throw e;
   }
 };
 
