@@ -1,6 +1,6 @@
 import { useActionData } from 'react-router-dom';
 import LoginForm from './LoginForm';
-import Link from '../../components/ui/Link';
+import Link from '../../components/ui/link';
 
 export default function Login() {
   const actionData = useActionData();
