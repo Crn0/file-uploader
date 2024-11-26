@@ -9,7 +9,7 @@ export default function LoginService(request) {
       headers.append('Content-Type', 'application/json');
 
       const [error, data] = await request.callApi(
-        'api/v1/auth/tokens',
+        'api/v1/auth/login',
         'POST',
         headers,
         userInputDTO,

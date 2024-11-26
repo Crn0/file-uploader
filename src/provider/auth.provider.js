@@ -27,14 +27,11 @@ export default class AuthProvider {
 
       myHeaders.append('Content-Type', 'application/json');
 
-      const res = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/api/v1/auth/tokens/refresh-token`,
-        {
-          method: 'POST',
-          headers: myHeaders,
-          credentials: 'include',
-        },
-      );
+      const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/v1/auth/refresh-token`, {
+        method: 'POST',
+        headers: myHeaders,
+        credentials: 'include',
+      });
 
       const data = await res.json();
 
