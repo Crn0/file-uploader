@@ -9,7 +9,7 @@ export default function RegisterService(request) {
       headers.append('Content-Type', 'application/json');
 
       const [error, data] = await request.callApi(
-        'api/v1/auth/local',
+        'api/v1/auth/register',
         'POST',
         headers,
         userInputDTO,
