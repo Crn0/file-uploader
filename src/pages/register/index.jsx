@@ -1,5 +1,5 @@
 import { useActionData } from 'react-router-dom';
-import Link from '../../components/ui/Link';
+import Link from '../../components/ui/link';
 import RegisterForm from './RegisterForm';
 
 export default function Register() {
