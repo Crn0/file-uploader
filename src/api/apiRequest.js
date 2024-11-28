@@ -7,6 +7,10 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token) => {
 
     headersRef.append('Authorization', `Bearer ${token}`);
 
+    if (headersRef.get('Authorization')) {
+      headersRef.set('Authorization', `Bearer ${token}`);
+    }
+
     let res;
     if (method.toUpperCase() === 'GET' || method.toUpperCase() === 'HEAD') {
       res = await fetch(url, {
@@ -23,6 +27,7 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token) => {
 
     const data = await res.json();
 
+    if (res.status === 401) throw new APIError('Unauthorized', 401);
     if (data?.code >= 400) throw new APIError(data.message, data.code);
 
     return [null, data];
@@ -35,12 +40,21 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token) => {
 
 const callAPIWithoutToken = async (url, method, headers, dataToSend) => {
   try {
-    const res = await fetch(url, {
-      method,
-      headers,
-      body: JSON.stringify(dataToSend),
-      credentials: 'include',
-    });
+    let res;
+
+    if (method.toUpperCase() === 'GET' || method.toUpperCase() === 'HEAD') {
+      res = await fetch(url, {
+        method,
+        headers,
+      });
+    } else {
+      res = await fetch(url, {
+        method,
+        headers,
+        body: JSON.stringify(dataToSend),
+        credentials: 'include',
+      });
+    }
 
     const data = await res.json();
 
@@ -80,30 +94,42 @@ export default class ApiRequest {
     // if the user login using google open id connect
     // there will be no acess token so we need to hit the
     // refresh token end point to get a new token
-    if (!token) {
-      const [_, rData] = await this.#provider.refresh();
+    // if (!token) {
+    //   const [_, rData] = await this.#provider.refresh();
 
-      this.#provider.token = rData.accessToken;
-    }
+    //   this.#provider.token = rData.accessToken;
+
+    //   token = this.#provider.token;
+    // }
 
     try {
-      return callAPIWithToken(url, method, headers, dataToSend, token);
+      const [error, data] = await callAPIWithToken(url, method, headers, dataToSend, token);
+
+      if (error) throw error;
+
+      return [null, data];
     } catch (e) {
+      // if we received a 401 error refresh the token
       if (e.httpCode !== 401) throw e;
 
-      // if we received a 401 error refresh the token
-      const [_, rData] = await this.#provider.refresh();
+      const [rError, rData] = await this.#provider.refresh();
+      // if the refresh token is expired throw an error
+      if (rError) throw rError;
 
       this.#provider.token = rData.accessToken;
-
       token = this.#provider.token;
 
       try {
         // retry to call the api again
+        const [error, data] = await callAPIWithToken(url, method, headers, dataToSend, token);
 
-        return callAPIWithToken(url, method, headers, dataToSend, token);
+        if (error) throw error;
+
+        return [null, data];
       } catch (e2) {
-        return e2;
+        if (e2 instanceof APIError && e2.code === 401) return [e2, null];
+
+        throw e2;
       }
     }
   }
