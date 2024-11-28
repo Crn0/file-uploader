@@ -20,9 +20,9 @@ const checkAuth = async () => {
 
     return replace('/');
   } catch (e) {
-    if (e instanceof APIError) return e;
+    if (e instanceof APIError && e.httpCode === 401) return e;
 
-    throw e;
+    return e;
   }
 };
 
