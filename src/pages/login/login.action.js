@@ -35,8 +35,6 @@ const login = async ({ request }) => {
     const [error, data] = await service.login(DTO);
 
     if (error) throw error;
-
-    AuthProvider.user = data.user;
     AuthProvider.token = data.accessToken;
   } catch (e) {
     if (e instanceof FieldError) return e;
