@@ -14,9 +14,11 @@ const checkAuth = async () => {
   if (AuthProvider.user) return AuthProvider.user;
 
   try {
-    const [error, _] = await service.checkAuth();
+    const [error, user] = await service.checkAuth();
 
     if (error) throw error;
+
+    AuthProvider.user = user;
 
     return replace('/');
   } catch (e) {
