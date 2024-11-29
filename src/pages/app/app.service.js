@@ -2,7 +2,7 @@ import AuthProvider from '../../provider/auth.provider';
 import APIError from '../../errors/api.error';
 
 export default function AppService(request) {
-  const getUser = async () => {
+  const getUser = () => {
     const { user } = AuthProvider;
 
     return user;

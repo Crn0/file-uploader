@@ -9,9 +9,9 @@ const client = new ApiRequest(BASE_URL, AuthProvider);
 
 const service = AppService(client);
 
-const getUser = async () => {
+const getUser = () => {
   const user = service.getUser();
-
+  console.log(user);
   if (!user) return replace('/re-auth');
 
   return user;
