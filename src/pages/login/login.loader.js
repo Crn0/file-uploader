@@ -16,6 +16,12 @@ const checkAuth = async ({ request }) => {
   if (AuthProvider.user) return AuthProvider.user;
 
   try {
+    const [rError, rData] = await AuthProvider.refresh();
+
+    if (rError) throw rError;
+
+    AuthProvider.token = rData.accessToken;
+
     const [error, user] = await service.checkAuth(request);
 
     if (error) throw error;
