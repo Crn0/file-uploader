@@ -8,10 +8,10 @@ const client = new ApiRequest(BASE_URL, AuthProvider);
 
 const service = ReAuthService(client);
 
-const silentLogin = async () => {
+const silentLogin = async ({ request }) => {
   if (AuthProvider.user) return AuthProvider.user;
 
-  const data = service.silentLogin();
+  const data = service.silentLogin(request);
 
   return { data };
 };

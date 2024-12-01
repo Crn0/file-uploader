@@ -9,9 +9,7 @@ function App() {
     <UserContext.Provider value={data}>
       <Header />
       <main>
-        <section>
-          <Outlet />
-        </section>
+        <Outlet />
       </main>
     </UserContext.Provider>
   );

@@ -12,11 +12,11 @@ const client = new ApiRequest(BASE_URL, AuthProvider);
 
 const service = loginService(client);
 
-const checkAuth = async () => {
+const checkAuth = async ({ request }) => {
   if (AuthProvider.user) return AuthProvider.user;
 
   try {
-    const [error, user] = await service.checkAuth();
+    const [error, user] = await service.checkAuth(request);
 
     if (error) throw error;
 

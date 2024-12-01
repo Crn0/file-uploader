@@ -9,9 +9,9 @@ const client = new ApiRequest(BASE_URL, AuthProvider);
 
 const service = AppService(client);
 
-const logout = async () => {
+const logout = async (request) => {
   try {
-    await service.logout();
+    await service.logout(request);
 
     return replace('/login');
   } catch (error) {
@@ -24,7 +24,7 @@ const action = async ({ request }) => {
   const intent = formData.get('intent');
 
   if (intent === 'logout') {
-    return logout();
+    return logout(request);
   }
 
   throw new Error(`invalid intent of ${intent}`);
