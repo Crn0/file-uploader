@@ -53,7 +53,7 @@ const register = async ({ request }) => {
   }
 
   try {
-    const [error, data] = await service.register(DTO);
+    const [error, data] = await service.register(DTO, request);
 
     if (error) throw error;
 

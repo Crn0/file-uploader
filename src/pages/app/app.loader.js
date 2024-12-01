@@ -11,7 +11,7 @@ const service = AppService(client);
 
 const getUser = () => {
   const user = service.getUser();
-  console.log(user);
+
   if (!user) return replace('/re-auth');
 
   return user;

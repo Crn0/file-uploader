@@ -1,20 +1,26 @@
 import AuthProvider from '../../provider/auth.provider';
 import APIError from '../../errors/api.error';
 
-export default function AppService(request) {
+export default function AppService(client) {
   const getUser = () => {
     const { user } = AuthProvider;
 
     return user;
   };
 
-  const logout = async () => {
+  const logout = async (request) => {
     try {
       const headers = new Headers();
-
       headers.append('Content-Type', 'application/json');
 
-      const [error, data] = await request.callApi('api/v1/auth/logout', 'POST', headers, {}, false);
+      const [error, data] = await client.callApi(
+        'api/v1/auth/logout',
+        'POST',
+        headers,
+        {},
+        request,
+        false,
+      );
 
       if (error) throw error;
 

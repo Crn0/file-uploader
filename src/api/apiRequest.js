@@ -1,7 +1,7 @@
 import FieldError from '../errors/field.error';
 import APIError from '../errors/api.error';
 
-const callAPIWithToken = async (url, method, headers, dataToSend, token) => {
+const callAPIWithToken = async (url, method, headers, dataToSend, token, signal) => {
   try {
     const headersRef = headers;
 
@@ -15,11 +15,13 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token) => {
     if (method.toUpperCase() === 'GET' || method.toUpperCase() === 'HEAD') {
       res = await fetch(url, {
         method,
+        signal,
         headers: headersRef,
       });
     } else {
       res = await fetch(url, {
         method,
+        signal,
         headers: headersRef,
         body: JSON.stringify(dataToSend),
       });
@@ -38,7 +40,7 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token) => {
   }
 };
 
-const callAPIWithoutToken = async (url, method, headers, dataToSend) => {
+const callAPIWithoutToken = async (url, method, headers, dataToSend, signal) => {
   try {
     let res;
 
@@ -46,16 +48,17 @@ const callAPIWithoutToken = async (url, method, headers, dataToSend) => {
       res = await fetch(url, {
         method,
         headers,
+        signal,
       });
     } else {
       res = await fetch(url, {
         method,
         headers,
+        signal,
         body: JSON.stringify(dataToSend),
         credentials: 'include',
       });
     }
-
     const data = await res.json();
 
     if (data?.code >= 400) {
@@ -85,11 +88,11 @@ export default class ApiRequest {
     }
   }
 
-  async callApi(path, method, headers, dataToSend, withToken = true) {
+  async callApi(path, method, headers, dataToSend, request, withToken = true) {
     const url = `${this.#baseURL}${path}`;
     let { token } = this.#provider;
 
-    if (!withToken) return callAPIWithoutToken(url, method, headers, dataToSend);
+    if (!withToken) return callAPIWithoutToken(url, method, headers, dataToSend, request.signal);
 
     // if the user login using google open id connect
     // there will be no acess token so we need to hit the
@@ -103,7 +106,14 @@ export default class ApiRequest {
     // }
 
     try {
-      const [error, data] = await callAPIWithToken(url, method, headers, dataToSend, token);
+      const [error, data] = await callAPIWithToken(
+        url,
+        method,
+        headers,
+        dataToSend,
+        token,
+        request.signal,
+      );
 
       if (error) throw error;
 
@@ -121,7 +131,14 @@ export default class ApiRequest {
 
       try {
         // retry to call the api again
-        const [error, data] = await callAPIWithToken(url, method, headers, dataToSend, token);
+        const [error, data] = await callAPIWithToken(
+          url,
+          method,
+          headers,
+          dataToSend,
+          token,
+          request.signal,
+        );
 
         if (error) throw error;
 

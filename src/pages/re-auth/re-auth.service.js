@@ -1,13 +1,13 @@
 import APIError from '../../errors/api.error';
 
-export default function AppService(request) {
-  const silentLogin = async () => {
+export default function AppService(client) {
+  const silentLogin = async (request) => {
     try {
       const headers = new Headers();
 
       headers.append('Content-Type', 'application/json');
 
-      const [error, data] = await request.callApi('api/v1/users/me', 'GET', headers, {});
+      const [error, data] = await client.callApi('api/v1/users/me', 'GET', headers, {}, request);
 
       if (error) throw error;
 
