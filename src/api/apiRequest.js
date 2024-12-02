@@ -1,7 +1,7 @@
 import FieldError from '../errors/field.error';
 import APIError from '../errors/api.error';
 
-const callAPIWithToken = async (url, method, headers, dataToSend, token, signal) => {
+const callAPIWithToken = async (url, method, headers, dataToSend, token, signal, isFileUpload) => {
   try {
     const headersRef = headers;
 
@@ -18,12 +18,23 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token, signal)
         signal,
         headers: headersRef,
       });
-    } else {
+    }
+
+    if (method.toUpperCase() === 'POST' && isFileUpload === false) {
       res = await fetch(url, {
         method,
         signal,
         headers: headersRef,
         body: JSON.stringify(dataToSend),
+      });
+    }
+
+    if (method.toUpperCase() === 'POST' && isFileUpload) {
+      res = await fetch(url, {
+        method,
+        signal,
+        headers: headersRef,
+        body: dataToSend,
       });
     }
 
@@ -88,7 +99,15 @@ export default class ApiRequest {
     }
   }
 
-  async callApi(path, method, headers, dataToSend, request, withToken = true) {
+  async callApi(
+    path,
+    method,
+    headers,
+    dataToSend,
+    request,
+    withToken = true,
+    isFileUpload = false,
+  ) {
     const url = `${this.#baseURL}${path}`;
     let { token } = this.#provider;
 
@@ -113,6 +132,7 @@ export default class ApiRequest {
         dataToSend,
         token,
         request.signal,
+        isFileUpload,
       );
 
       if (error) throw error;
@@ -138,6 +158,7 @@ export default class ApiRequest {
           dataToSend,
           token,
           request.signal,
+          isFileUpload,
         );
 
         if (error) throw error;
