@@ -27,13 +27,16 @@ const checkAuth = async ({ request }) => {
     if (error) throw error;
 
     AuthProvider.user = user;
-
-    return replace('/');
   } catch (e) {
     if (e instanceof APIError && e.httpCode === 401) return e;
 
     return e;
   }
+  const location = new URL(request.url);
+  const params = new URLSearchParams(location.search);
+  const from = params.get('from') || '/';
+
+  return replace(from);
 };
 
 export default {
