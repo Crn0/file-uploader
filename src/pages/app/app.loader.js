@@ -12,7 +12,7 @@ const service = AppService(client);
 const getUser = () => {
   const user = service.getUser();
 
-  if (!user) return replace('/re-auth');
+  if (!user) return replace('/login?from=/');
 
   return user;
 };
