@@ -28,9 +28,16 @@ export default function LoginService(client) {
     }
   };
 
-  const checkAuth = async (request) => {
+  const checkAuth = async (request, provider) => {
     try {
       const headers = new Headers();
+      const providerRef = provider;
+
+      const [rError, rData] = await providerRef.refresh();
+
+      if (rError) throw rError;
+
+      providerRef.token = rData.accessToken;
 
       headers.append('Content-Type', 'application/json');
 
