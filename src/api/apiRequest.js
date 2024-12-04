@@ -41,11 +41,13 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token, signal,
     const data = await res.json();
 
     if (res.status === 401) throw new APIError('Unauthorized', 401);
+    if (data?.code >= 400 && data?.errors[0].type === 'field')
+      throw new FieldError(data.message, data.errors, data.code);
     if (data?.code >= 400) throw new APIError(data.message, data.code);
 
     return [null, data];
   } catch (e) {
-    if (e instanceof APIError) return [e, null];
+    if (e instanceof APIError || e instanceof FieldError) return [e, null];
 
     throw e;
   }
@@ -72,13 +74,16 @@ const callAPIWithoutToken = async (url, method, headers, dataToSend, signal) => 
     }
     const data = await res.json();
 
+    if (data?.code >= 400 && data?.errors[0].type === 'field')
+      throw new FieldError(data.message, data.errors, data.code);
+
     if (data?.code >= 400) {
       throw new FieldError(data.message, data.errors, data.code);
     }
 
     return [null, data];
   } catch (error) {
-    if (error instanceof FieldError) return [error, null];
+    if (error instanceof FieldError || error instanceof APIError) return [error, null];
 
     throw new Error(error);
   }
@@ -165,7 +170,8 @@ export default class ApiRequest {
 
         return [null, data];
       } catch (e2) {
-        if (e2 instanceof APIError && e2.code === 401) return [e2, null];
+        if ((e2 instanceof APIError && e2.code === 401) || e2 instanceof FieldError)
+          return [e2, null];
 
         throw e2;
       }
