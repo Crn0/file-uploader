@@ -32,7 +32,7 @@ const login = async ({ request }) => {
   }
 
   try {
-    const [error, data] = await service.login(DTO);
+    const [error, data] = await service.login(DTO, request);
 
     if (error) throw error;
     AuthProvider.token = data.accessToken;

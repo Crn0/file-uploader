@@ -1,18 +1,19 @@
 import FieldError from '../../errors/field.error';
 import APIError from '../../errors/api.error';
 
-export default function LoginService(request) {
-  const login = async (userInputDTO) => {
+export default function LoginService(client) {
+  const login = async (userInputDTO, request) => {
     try {
       const headers = new Headers();
 
       headers.append('Content-Type', 'application/json');
 
-      const [error, data] = await request.callApi(
+      const [error, data] = await client.callApi(
         'api/v1/auth/login',
         'POST',
         headers,
         userInputDTO,
+        request,
         false,
       );
 
@@ -27,13 +28,20 @@ export default function LoginService(request) {
     }
   };
 
-  const checkAuth = async () => {
+  const checkAuth = async (request, provider) => {
     try {
       const headers = new Headers();
+      const providerRef = provider;
+
+      const [rError, rData] = await providerRef.refresh();
+
+      if (rError) throw rError;
+
+      providerRef.token = rData.accessToken;
 
       headers.append('Content-Type', 'application/json');
 
-      const [error, data] = await request.callApi('api/v1/users/me', 'GET', headers, {});
+      const [error, data] = await client.callApi('api/v1/users/me', 'GET', headers, {}, request);
 
       if (error) throw error;
 
