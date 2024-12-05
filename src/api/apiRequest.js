@@ -1,6 +1,76 @@
 import FieldError from '../errors/field.error';
 import APIError from '../errors/api.error';
 
+const httpRequest = async (url, method, headers, dataToSend, token, signal, isFileUpload) => {
+  const ifTheRequestIsNotPostAndPut =
+    method.toUpperCase() !== 'POST' && method.toUpperCase() !== 'PUT';
+
+  if (!token) {
+    if (ifTheRequestIsNotPostAndPut) {
+      return fetch(url, {
+        method,
+        signal,
+        headers,
+        credentials: 'include',
+        redirect: 'follow',
+      });
+    }
+
+    if (isFileUpload) {
+      return fetch(url, {
+        method,
+        signal,
+        headers,
+        body: dataToSend,
+        credentials: 'include',
+        redirect: 'follow',
+      });
+    }
+
+    return fetch(url, {
+      method,
+      signal,
+      headers,
+      body: JSON.stringify(dataToSend),
+      credentials: 'include',
+      redirect: 'follow',
+    });
+  }
+
+  if (ifTheRequestIsNotPostAndPut) {
+    return fetch(url, {
+      method,
+      signal,
+      headers,
+      token,
+      credentials: 'include',
+      redirect: 'follow',
+    });
+  }
+
+  if (isFileUpload) {
+    return fetch(url, {
+      method,
+      signal,
+      headers,
+      token,
+      body: dataToSend,
+      credentials: 'include',
+      redirect: 'follow',
+    });
+  }
+
+  return fetch(url, {
+    method,
+    signal,
+    headers,
+    token,
+    body: JSON.stringify(dataToSend),
+    credentials: 'include',
+    redirect: 'follow',
+  });
+};
+
 const callAPIWithToken = async (url, method, headers, dataToSend, token, signal, isFileUpload) => {
   try {
     const headersRef = headers;
@@ -11,47 +81,26 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token, signal,
       headersRef.set('Authorization', `Bearer ${token}`);
     }
 
-    let res;
+    const responce = await httpRequest(
+      url,
+      method,
+      headersRef,
+      dataToSend,
+      token,
+      signal,
+      isFileUpload,
+    );
 
-    if (method.toUpperCase() === 'GET' || method.toUpperCase() === 'HEAD') {
-      res = await fetch(url, {
-        method,
-        signal,
-        headers: headersRef,
-        redirect: 'follow',
-      });
-    }
-
-    if (method.toUpperCase() === 'POST' && isFileUpload === false) {
-      res = await fetch(url, {
-        method,
-        signal,
-        headers: headersRef,
-        body: JSON.stringify(dataToSend),
-        redirect: 'follow',
-      });
-    }
-
-    if (method.toUpperCase() === 'POST' && isFileUpload) {
-      res = await fetch(url, {
-        method,
-        signal,
-        headers: headersRef,
-        body: dataToSend,
-        redirect: 'follow',
-      });
-    }
-
-    if (res?.redirected) {
-      window.location.href = res.url;
+    if (responce?.redirected) {
+      window.location.href = responce.url;
       return [null, null];
     }
 
-    const data = await res.json();
+    const data = await responce.json();
 
-    if (res.status === 401) throw new APIError('Unauthorized', 401);
+    if (responce.status === 401) throw new APIError('Unauthorized', 401);
 
-    if (data?.code >= 400 && data?.errors?.[0].type === 'field')
+    if (data?.code >= 400 && data?.errors[0]?.type === 'field')
       throw new FieldError(data.message, data.errors, data.code);
 
     if (data?.code >= 400) throw new APIError(data.message, data.code);
@@ -66,24 +115,9 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token, signal,
 
 const callAPIWithoutToken = async (url, method, headers, dataToSend, signal) => {
   try {
-    let res;
+    const responce = await httpRequest(url, method, headers, dataToSend, null, signal);
 
-    if (method.toUpperCase() === 'GET' || method.toUpperCase() === 'HEAD') {
-      res = await fetch(url, {
-        method,
-        headers,
-        signal,
-      });
-    } else {
-      res = await fetch(url, {
-        method,
-        headers,
-        signal,
-        body: JSON.stringify(dataToSend),
-        credentials: 'include',
-      });
-    }
-    const data = await res.json();
+    const data = await responce.json();
 
     if (data?.code >= 400 && data?.errors[0].type === 'field')
       throw new FieldError(data.message, data.errors, data.code);
