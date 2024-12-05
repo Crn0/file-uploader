@@ -12,11 +12,13 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token, signal,
     }
 
     let res;
+
     if (method.toUpperCase() === 'GET' || method.toUpperCase() === 'HEAD') {
       res = await fetch(url, {
         method,
         signal,
         headers: headersRef,
+        redirect: 'follow',
       });
     }
 
@@ -26,6 +28,7 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token, signal,
         signal,
         headers: headersRef,
         body: JSON.stringify(dataToSend),
+        redirect: 'follow',
       });
     }
 
@@ -35,14 +38,22 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token, signal,
         signal,
         headers: headersRef,
         body: dataToSend,
+        redirect: 'follow',
       });
+    }
+
+    if (res?.redirected) {
+      window.location.href = res.url;
+      return [null, null];
     }
 
     const data = await res.json();
 
     if (res.status === 401) throw new APIError('Unauthorized', 401);
-    if (data?.code >= 400 && data?.errors[0].type === 'field')
+
+    if (data?.code >= 400 && data?.errors?.[0].type === 'field')
       throw new FieldError(data.message, data.errors, data.code);
+
     if (data?.code >= 400) throw new APIError(data.message, data.code);
 
     return [null, data];
