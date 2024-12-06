@@ -91,12 +91,14 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token, signal,
       isFileUpload,
     );
 
-    if (responce?.redirected) {
-      window.location.href = responce.url;
-      return [null, null];
-    }
+    if (responce.status === 204) return [null, null];
 
     const data = await responce.json();
+
+    if (responce?.status === 302) {
+      window.location.href = data.url;
+      return [null, null];
+    }
 
     if (responce.status === 401) throw new APIError('Unauthorized', 401);
 
@@ -116,6 +118,8 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token, signal,
 const callAPIWithoutToken = async (url, method, headers, dataToSend, signal) => {
   try {
     const responce = await httpRequest(url, method, headers, dataToSend, null, signal);
+
+    if (responce.status === 204) return [null, null];
 
     const data = await responce.json();
 
