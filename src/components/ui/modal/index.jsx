@@ -14,35 +14,30 @@ export default function Modal({ children, title, buttonText }) {
 
   return (
     <>
-      {(() => {
-        if (!isModalOpen) {
-          return (
-            <Button type='button' size='lg' onClick={open} testId='btn__open__modal'>
-              {buttonText}
-            </Button>
-          );
-        }
-
-        return (
-          <div>
-            <dialog ref={ref} open={isModalOpen}>
+      <div>
+        <Button type='button' size='lg' onClick={open} testId='btn__open__modal'>
+          {buttonText}
+        </Button>
+      </div>
+      {isModalOpen && (
+        <div>
+          <dialog ref={ref} open>
+            <div>
               <div>
-                <div>
-                  <h3>{title}</h3>
-                </div>
-
-                <div>
-                  <Button type='button' size='xxs' onClick={close} testId='btn__close__modal'>
-                    X
-                  </Button>
-                </div>
+                <h3>{title}</h3>
               </div>
 
-              <div>{children}</div>
-            </dialog>
-          </div>
-        );
-      })()}
+              <div>
+                <Button type='button' size='xxs' onClick={close} testId='btn__close__modal'>
+                  X
+                </Button>
+              </div>
+            </div>
+
+            <div>{children}</div>
+          </dialog>
+        </div>
+      )}
     </>
   );
 }
