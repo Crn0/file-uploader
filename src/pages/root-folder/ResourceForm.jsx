@@ -31,7 +31,7 @@ export default function ResourceForm({
   const onKeyDown = (e) => {
     if (e.code === 'Enter') fileRef.current.click();
   };
-  console.log(fetcher.state);
+
   useEffect(() => {
     if (fetcher.data) {
       setState((prev) => {
