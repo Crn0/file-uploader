@@ -70,9 +70,9 @@ export default function RootFolder() {
   };
 
   useEffect(() => {
-    // if (!isLoading && resourceAction.file['file:preview'].on) {
-    //   document.body.style.overflow = 'hidden';
-    // }
+    if (!isLoading && resourceAction.file['file:preview'].on) {
+      document.body.style.overflow = 'hidden';
+    }
 
     if (!isSubmitting && resourceAction.file['file:delete'].on) {
       setFiles((prev) => {
