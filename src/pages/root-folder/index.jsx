@@ -2,6 +2,7 @@ import { useState, Suspense, useEffect, useReducer } from 'react';
 import { useLoaderData, Await, useFetcher } from 'react-router-dom';
 import { reducer, reducerState } from './reducer';
 import ActionHeader from './ActionHeader';
+import SortHeader from './SortHeader';
 import FileComponent from './Files';
 import FolderComponent from './Folder';
 import Spinner from '../../components/ui/spinner';
@@ -135,6 +136,10 @@ export default function RootFolder() {
         {/* ACTION HEADER */}
         <div>
           <ActionHeader setFolders={setFolders} setFiles={setFiles} />
+        </div>
+
+        <div>
+          <SortHeader setFolders={setFolders} setFiles={setFiles} />
         </div>
         {/* BODY */}
         <div>
