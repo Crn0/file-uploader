@@ -20,6 +20,7 @@ function FileRef(
       onChange={onChange}
       onKeyDown={onKeyDown}
       accept={filesAccept}
+      required
     />
   );
 }

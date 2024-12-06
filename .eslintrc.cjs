@@ -32,7 +32,7 @@ module.exports = {
       {
         labelComponents: ['Label'],
         labelAttributes: ['name'],
-        controlComponents: ['Input'],
+        controlComponents: ['Input', 'File'],
         assert: 'nesting',
         depth: 3,
       },

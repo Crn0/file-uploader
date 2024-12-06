@@ -1,7 +1,77 @@
 import FieldError from '../errors/field.error';
 import APIError from '../errors/api.error';
 
-const callAPIWithToken = async (url, method, headers, dataToSend, token, signal) => {
+const httpRequest = async (url, method, headers, dataToSend, token, signal, isFileUpload) => {
+  const ifTheRequestIsNotPostAndPut =
+    method.toUpperCase() !== 'POST' && method.toUpperCase() !== 'PUT';
+
+  if (!token) {
+    if (ifTheRequestIsNotPostAndPut) {
+      return fetch(url, {
+        method,
+        signal,
+        headers,
+        credentials: 'include',
+        redirect: 'follow',
+      });
+    }
+
+    if (isFileUpload) {
+      return fetch(url, {
+        method,
+        signal,
+        headers,
+        body: dataToSend,
+        credentials: 'include',
+        redirect: 'follow',
+      });
+    }
+
+    return fetch(url, {
+      method,
+      signal,
+      headers,
+      body: JSON.stringify(dataToSend),
+      credentials: 'include',
+      redirect: 'follow',
+    });
+  }
+
+  if (ifTheRequestIsNotPostAndPut) {
+    return fetch(url, {
+      method,
+      signal,
+      headers,
+      token,
+      credentials: 'include',
+      redirect: 'follow',
+    });
+  }
+
+  if (isFileUpload) {
+    return fetch(url, {
+      method,
+      signal,
+      headers,
+      token,
+      body: dataToSend,
+      credentials: 'include',
+      redirect: 'follow',
+    });
+  }
+
+  return fetch(url, {
+    method,
+    signal,
+    headers,
+    token,
+    body: JSON.stringify(dataToSend),
+    credentials: 'include',
+    redirect: 'follow',
+  });
+};
+
+const callAPIWithToken = async (url, method, headers, dataToSend, token, signal, isFileUpload) => {
   try {
     const headersRef = headers;
 
@@ -11,30 +81,35 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token, signal)
       headersRef.set('Authorization', `Bearer ${token}`);
     }
 
-    let res;
-    if (method.toUpperCase() === 'GET' || method.toUpperCase() === 'HEAD') {
-      res = await fetch(url, {
-        method,
-        signal,
-        headers: headersRef,
-      });
-    } else {
-      res = await fetch(url, {
-        method,
-        signal,
-        headers: headersRef,
-        body: JSON.stringify(dataToSend),
-      });
+    const responce = await httpRequest(
+      url,
+      method,
+      headersRef,
+      dataToSend,
+      token,
+      signal,
+      isFileUpload,
+    );
+
+    if (responce.status === 204) return [null, null];
+
+    const data = await responce.json();
+
+    if (responce?.status === 302) {
+      window.location.href = data.url;
+      return [null, null];
     }
 
-    const data = await res.json();
+    if (responce.status === 401) throw new APIError('Unauthorized', 401);
 
-    if (res.status === 401) throw new APIError('Unauthorized', 401);
+    if (data?.code >= 400 && data?.errors[0]?.type === 'field')
+      throw new FieldError(data.message, data.errors, data.code);
+
     if (data?.code >= 400) throw new APIError(data.message, data.code);
 
     return [null, data];
   } catch (e) {
-    if (e instanceof APIError) return [e, null];
+    if (e instanceof APIError || e instanceof FieldError) return [e, null];
 
     throw e;
   }
@@ -42,24 +117,14 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token, signal)
 
 const callAPIWithoutToken = async (url, method, headers, dataToSend, signal) => {
   try {
-    let res;
+    const responce = await httpRequest(url, method, headers, dataToSend, null, signal);
 
-    if (method.toUpperCase() === 'GET' || method.toUpperCase() === 'HEAD') {
-      res = await fetch(url, {
-        method,
-        headers,
-        signal,
-      });
-    } else {
-      res = await fetch(url, {
-        method,
-        headers,
-        signal,
-        body: JSON.stringify(dataToSend),
-        credentials: 'include',
-      });
-    }
-    const data = await res.json();
+    if (responce.status === 204) return [null, null];
+
+    const data = await responce.json();
+
+    if (data?.code >= 400 && data?.errors[0].type === 'field')
+      throw new FieldError(data.message, data.errors, data.code);
 
     if (data?.code >= 400) {
       throw new FieldError(data.message, data.errors, data.code);
@@ -67,7 +132,7 @@ const callAPIWithoutToken = async (url, method, headers, dataToSend, signal) => 
 
     return [null, data];
   } catch (error) {
-    if (error instanceof FieldError) return [error, null];
+    if (error instanceof FieldError || error instanceof APIError) return [error, null];
 
     throw new Error(error);
   }
@@ -88,7 +153,15 @@ export default class ApiRequest {
     }
   }
 
-  async callApi(path, method, headers, dataToSend, request, withToken = true) {
+  async callApi(
+    path,
+    method,
+    headers,
+    dataToSend,
+    request,
+    withToken = true,
+    isFileUpload = false,
+  ) {
     const url = `${this.#baseURL}${path}`;
     let { token } = this.#provider;
 
@@ -113,6 +186,7 @@ export default class ApiRequest {
         dataToSend,
         token,
         request.signal,
+        isFileUpload,
       );
 
       if (error) throw error;
@@ -138,13 +212,15 @@ export default class ApiRequest {
           dataToSend,
           token,
           request.signal,
+          isFileUpload,
         );
 
         if (error) throw error;
 
         return [null, data];
       } catch (e2) {
-        if (e2 instanceof APIError && e2.code === 401) return [e2, null];
+        if ((e2 instanceof APIError && e2.code === 401) || e2 instanceof FieldError)
+          return [e2, null];
 
         throw e2;
       }
