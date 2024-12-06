@@ -44,8 +44,6 @@ const preview = async (request, params) => {
 
     if (error) throw error;
 
-    await new Promise((res) => setTimeout(res, 5000));
-
     return [null, data];
   } catch (e) {
     if (e instanceof APIError || e instanceof FieldError) return [e, null];
