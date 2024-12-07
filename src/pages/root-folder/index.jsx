@@ -160,7 +160,6 @@ export default function RootFolder() {
                       activeId={activeId}
                       setActiveId={setActiveId}
                       buttonChildren={<FileComponent key={file.id} file={file} />}
-                      dispatch={dispatch}
                       done={!resourceActionIsLoading('file:share', file.id)}
                       on={resourceAction.file['file:preview'].on}
                     >

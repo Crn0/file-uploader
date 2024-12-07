@@ -12,7 +12,6 @@ export default function PreviewModal({
   setActiveId,
   done,
   on,
-  dispatch,
 }) {
   const ref = useRef();
   const isModalOpen = activeId === modalId;
@@ -22,16 +21,7 @@ export default function PreviewModal({
     setActiveId(-1);
   };
 
-  useOnClickOutside(ref, close, done, on, () => {
-    dispatch({
-      field: 'file',
-      type: 'file:preview',
-      value: {
-        id: null,
-        on: false,
-      },
-    });
-  });
+  useOnClickOutside(ref, close, done, on);
 
   return (
     <>
@@ -75,5 +65,4 @@ PreviewModal.propTypes = {
   setActiveId: PropTypes.func.isRequired,
   done: PropTypes.bool,
   on: PropTypes.bool,
-  dispatch: PropTypes.func.isRequired,
 };
