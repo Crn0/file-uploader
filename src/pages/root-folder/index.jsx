@@ -6,7 +6,7 @@ import SortHeader from './SortHeader';
 import FileComponent from './Files';
 import FolderComponent from './Folder';
 import Spinner from '../../components/ui/spinner';
-import PreviewModal from '../../components/ui/modal/PreviewModal';
+import FileModal from '../../components/ui/modal/FileModal';
 import Button from '../../components/ui/button';
 import Input from '../../components/ui/form/Input';
 import styles from './css/resource-form.module.css';
@@ -152,7 +152,7 @@ export default function RootFolder() {
                   folders.map((folder) => <FolderComponent key={folder.id} folder={folder} />)}
                 {files.length !== 0 &&
                   files.map((file) => (
-                    <PreviewModal
+                    <FileModal
                       key={`${file.name} ${file.id}`}
                       title='File detail'
                       buttonText=':'
@@ -264,7 +264,7 @@ export default function RootFolder() {
                           Download
                         </Button>
                       </div>
-                    </PreviewModal>
+                    </FileModal>
                   ))}
               </>
             );
