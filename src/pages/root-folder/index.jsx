@@ -160,7 +160,7 @@ export default function RootFolder() {
                       activeId={activeId}
                       setActiveId={setActiveId}
                       buttonChildren={<FileComponent key={file.id} file={file} />}
-                      done={!resourceActionIsLoading('file:share', file.id)}
+                      done={!resourceActionIsLoading('file:preview', file.id)}
                       on={resourceAction.file['file:preview'].on}
                     >
                       <div>
