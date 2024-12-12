@@ -102,7 +102,7 @@ const callAPIWithToken = async (url, method, headers, dataToSend, token, signal,
 
     if (responce.status === 401) throw new APIError('Unauthorized', 401);
 
-    if (data?.code >= 400 && data?.errors[0]?.type === 'field')
+    if (data?.code >= 400 && data?.errors?.[0]?.type === 'field')
       throw new FieldError(data.message, data.errors, data.code);
 
     if (data?.code >= 400) throw new APIError(data.message, data.code);
