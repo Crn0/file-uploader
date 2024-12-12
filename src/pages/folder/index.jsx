@@ -265,6 +265,19 @@ export default function Folder() {
                         )}
 
                         <div>
+                          <Button
+                            type='submit'
+                            size='xs'
+                            isLoading={resourceActionIsLoading('file:download')}
+                            disabled={resourceActionIsLoading('file:download')}
+                            onClick={handleFileAction(file.id, 'file:download')}
+                            testId='btn__file__download'
+                          >
+                            Download
+                          </Button>
+                        </div>
+
+                        <div>
                           <fetcher.Form action={`/files/${file.id}`} method='DELETE'>
                             <Input
                               type='hidden'
@@ -290,19 +303,6 @@ export default function Folder() {
                               Delete
                             </Button>
                           </fetcher.Form>
-                        </div>
-
-                        <div>
-                          <Button
-                            type='submit'
-                            size='xs'
-                            isLoading={resourceActionIsLoading('file:download')}
-                            disabled={resourceActionIsLoading('file:download')}
-                            onClick={handleFileAction(file.id, 'file:download')}
-                            testId='btn__file__download'
-                          >
-                            Download
-                          </Button>
                         </div>
 
                         {(() => {
