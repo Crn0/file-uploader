@@ -33,7 +33,7 @@ const generateLink = async (request, formData) => {
   }
 };
 
-export default async function loader({ request }) {
+export default async function action({ request }) {
   const formData = await request.formData();
   const intent = formData.get('intent');
 
