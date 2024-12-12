@@ -3,22 +3,36 @@ import { useRef, useState } from 'react';
 import Button from '../button';
 import useOnClickOutside from '../../../hooks/useOnClickOutside';
 
-export default function Modal({ children, title, buttonText }) {
+export default function Modal({
+  children,
+  title,
+  buttonText,
+  on,
+  done,
+  cleanup = () => {},
+  shouldOpen = false,
+  needButton = true,
+}) {
   const ref = useRef();
-  const [isModalOpen, setModalOpen] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(shouldOpen);
 
   const open = () => setModalOpen(true);
-  const close = () => setModalOpen(false);
+  const close = () => {
+    setModalOpen(false);
+    cleanup();
+  };
 
-  useOnClickOutside(ref, close);
+  useOnClickOutside(ref, close, on, done);
 
   return (
     <>
-      <div>
-        <Button type='button' size='lg' onClick={open} testId='btn__open__modal'>
-          {buttonText}
-        </Button>
-      </div>
+      {needButton && (
+        <div>
+          <Button type='button' size='lg' onClick={open} testId='btn__open__modal'>
+            {buttonText}
+          </Button>
+        </div>
+      )}
       {isModalOpen && (
         <div>
           <dialog ref={ref} open>
@@ -47,4 +61,9 @@ Modal.propTypes = {
     .isRequired,
   title: PropTypes.string.isRequired,
   buttonText: PropTypes.string.isRequired,
+  done: PropTypes.bool,
+  on: PropTypes.bool,
+  cleanup: PropTypes.func,
+  shouldOpen: PropTypes.bool,
+  needButton: PropTypes.bool,
 };
