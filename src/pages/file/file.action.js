@@ -31,11 +31,32 @@ const destroy = async (request, params) => {
   }
 };
 
+const share = async (request, params) => {
+  const fileDTO = {
+    id: Number(params.get('fileId')),
+  };
+
+  if (!AuthProvider.token) return replace(`/login?from=/files/${fileDTO.id}&action=file:share`);
+
+  try {
+    const [error, data] = await service.share(request, fileDTO);
+
+    if (error) throw error;
+
+    return [null, data];
+  } catch (e) {
+    if (e instanceof APIError || e instanceof FieldError) return [e, null];
+
+    throw e;
+  }
+};
+
 export default async function action({ request }) {
   const formData = await request.formData();
 
   const intent = formData.get('intent');
   if (intent === 'file:delete') return destroy(request, formData);
+  if (intent === 'file:share') return share(request, formData);
 
   throw Error(`Invalid action of ${intent}`);
 }
