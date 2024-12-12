@@ -7,6 +7,7 @@ export default function Input({
   autoComplete,
   uncontrolled = false,
   isDisabled = false,
+  checked = false,
   value = '',
   customStyles = '',
   placeholder = '',
@@ -19,6 +20,7 @@ export default function Input({
     return (
       <input
         className={`${customStyles}`}
+        value={value}
         type={type}
         name={name}
         onBlur={onBlur}
@@ -29,6 +31,7 @@ export default function Input({
         disabled={isDisabled}
         autoComplete={autoComplete}
         required
+        checked={checked}
       />
     );
   }
@@ -47,6 +50,7 @@ export default function Input({
       autoComplete={autoComplete}
       disabled={isDisabled}
       required
+      checked={checked}
     />
   );
 }
@@ -55,6 +59,7 @@ Input.propTypes = {
   type: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+  checked: PropTypes.bool,
   autoComplete: PropTypes.string.isRequired,
   customStyles: PropTypes.string,
   placeholder: PropTypes.string,
