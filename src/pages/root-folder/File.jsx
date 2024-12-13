@@ -1,6 +1,4 @@
 import PropTypes from 'prop-types';
-import Modal from '../../components/ui/modal';
-import Button from '../../components/ui/button';
 
 export default function FileComponent({ file }) {
   return (
