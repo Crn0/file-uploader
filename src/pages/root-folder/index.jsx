@@ -9,7 +9,18 @@ import Spinner from '../../components/ui/spinner';
 import FileModal from '../../components/ui/modal/FileModal';
 import Button from '../../components/ui/button';
 import Input from '../../components/ui/form/Input';
+import Modal from '../../components/ui/modal';
+import Label from '../../components/ui/form/Label';
 import styles from './css/resource-form.module.css';
+
+function deepEqual(x, y) {
+  const ok = Object.keys;
+  const tx = typeof x;
+  const ty = typeof y;
+  return x && y && tx === 'object' && tx === ty
+    ? ok(x).length === ok(y).length && ok(x).every((key) => deepEqual(x[key], y[key]))
+    : x === y;
+}
 
 export default function RootFolder() {
   const { data } = useLoaderData();
@@ -20,9 +31,28 @@ export default function RootFolder() {
   const [activeId, setActiveId] = useState(-1);
   const [folders, setFolders] = useState([]);
   const [files, setFiles] = useState([]);
+  const [fetcherData, setFetcherData] = useState({ prev: undefined, data: null });
+  const [radioIndex, setRadioIndex] = useState(null);
+  const [copyToClipBoard, setCopyToClipBoard] = useState(false);
 
   const isLoading = fetcher.state === 'loading';
   const isSubmitting = fetcher.state === 'submitting';
+
+  const handleCopyToClipboard = async () => {
+    await navigator.clipboard.writeText(fetcherData.url);
+    setCopyToClipBoard(true);
+  };
+
+  const handleFileShare = (id) => {
+    dispatch({
+      field: 'file',
+      type: 'file:share',
+      value: {
+        id,
+        on: true,
+      },
+    });
+  };
 
   const handleFileAction =
     (id, action, isSubmit = true) =>
@@ -92,10 +122,14 @@ export default function RootFolder() {
       });
     }
 
+    if (fetcher.data && deepEqual(fetcher.data[1], fetcherData.prev) === false) {
+      setFetcherData({ prev: fetcher.data[1], data: fetcher.data[1] });
+    }
+
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [resourceAction, isLoading, isSubmitting]);
+  }, [resourceAction, isLoading, isSubmitting, fetcher.data, fetcherData.prev]);
 
   return (
     <Suspense fallback={<Spinner />}>
@@ -196,19 +230,6 @@ export default function RootFolder() {
                         })()}
                       </div>
 
-                      <div>
-                        <Button
-                          type='submit'
-                          size='xs'
-                          isLoading={resourceActionIsLoading('file:share', file.id)}
-                          disabled={resourceActionIsLoading('file:share', file.id)}
-                          onClick={handleFileAction(file.id, 'file:share')}
-                          testId='btn__file__share'
-                        >
-                          Share
-                        </Button>
-                      </div>
-
                       {file.extension !== 'epub' && (
                         <div>
                           <Button
@@ -223,6 +244,30 @@ export default function RootFolder() {
                           </Button>
                         </div>
                       )}
+
+                      <div>
+                        <Button
+                          type='submit'
+                          size='xs'
+                          isLoading={resourceActionIsLoading('file:download')}
+                          disabled={resourceActionIsLoading('file:download')}
+                          onClick={handleFileAction(file.id, 'file:download')}
+                          testId='btn__file__download'
+                        >
+                          Download
+                        </Button>
+                      </div>
+
+                      <div>
+                        <Button
+                          type='submit'
+                          size='xs'
+                          onClick={() => handleFileShare(file.id)}
+                          testId='btn__file__share'
+                        >
+                          Share
+                        </Button>
+                      </div>
 
                       <div>
                         <fetcher.Form action={`/files/${file.id}`} method='DELETE'>
@@ -252,18 +297,161 @@ export default function RootFolder() {
                         </fetcher.Form>
                       </div>
 
-                      <div>
-                        <Button
-                          type='submit'
-                          size='xs'
-                          isLoading={resourceActionIsLoading('file:download')}
-                          disabled={resourceActionIsLoading('file:download')}
-                          onClick={handleFileAction(file.id, 'file:download')}
-                          testId='btn__file__download'
-                        >
-                          Download
-                        </Button>
-                      </div>
+                      {(() => {
+                        if (resourceAction.file['file:share'].id !== file.id) return null;
+                        return (
+                          <div>
+                            <Modal
+                              title='Share Link'
+                              buttonText='Share Link'
+                              needButton={false}
+                              shouldOpen={resourceAction.file['file:share'].id === file.id}
+                              cleanup={() => {
+                                setFetcherData((prev) => ({ ...prev, data: null }));
+                                dispatch({
+                                  field: 'file',
+                                  type: 'file:share',
+                                  value: {
+                                    id: null,
+                                    on: false,
+                                  },
+                                });
+                              }}
+                            >
+                              <fetcher.Form
+                                action={`/files/${resourceAction.file['file:share'].id}`}
+                                method='POST'
+                              >
+                                <Input
+                                  type='hidden'
+                                  name='intent'
+                                  value='file:share'
+                                  autoComplete='off'
+                                />
+                                <Input
+                                  type='hidden'
+                                  name='fileId'
+                                  value={resourceAction.file['file:share'].id}
+                                  autoComplete='off'
+                                />
+                                <fieldset>
+                                  <legend>Genarate a link to share</legend>
+                                  <div>
+                                    <Label name='1 hour'>
+                                      <Input
+                                        type='radio'
+                                        name='expiration'
+                                        value='1h'
+                                        autoComplete='off'
+                                        onChange={() => setRadioIndex(1)}
+                                        checked={radioIndex === 1}
+                                        isDisabled={fetcherData.data !== null}
+                                      />
+                                    </Label>
+                                  </div>
+
+                                  <div>
+                                    <Label name='1 day'>
+                                      <Input
+                                        type='radio'
+                                        name='expiration'
+                                        value='1d'
+                                        autoComplete='off'
+                                        onChange={() => setRadioIndex(2)}
+                                        checked={radioIndex === 2}
+                                        isDisabled={fetcherData.data !== null}
+                                      />
+                                    </Label>
+                                  </div>
+
+                                  <div>
+                                    <Label name='4 day'>
+                                      <Input
+                                        type='radio'
+                                        name='expiration'
+                                        value='4d'
+                                        autoComplete='off'
+                                        onChange={() => setRadioIndex(3)}
+                                        checked={radioIndex === 3}
+                                        isDisabled={fetcherData.data !== null}
+                                      />
+                                    </Label>
+                                  </div>
+
+                                  <div>
+                                    <Label name='1 week'>
+                                      <Input
+                                        type='radio'
+                                        name='expiration'
+                                        value='7d'
+                                        autoComplete='off'
+                                        onChange={() => setRadioIndex(4)}
+                                        checked={radioIndex === 4}
+                                        isDisabled={fetcherData.data !== null}
+                                      />
+                                    </Label>
+                                  </div>
+                                </fieldset>
+
+                                <div>
+                                  {(() => {
+                                    if (!fetcherData.data) {
+                                      return (
+                                        <Button
+                                          type='submit'
+                                          size='lg'
+                                          testId='btn__share__file'
+                                          onClick={() =>
+                                            dispatch({
+                                              field: 'file',
+                                              type: 'file:share',
+                                              value: {
+                                                id: resourceAction.file['file:share'].id,
+                                                on: true,
+                                              },
+                                            })
+                                          }
+                                          isLoading={resourceActionIsLoading(
+                                            'folder:file',
+                                            resourceAction.file['file:share'].id,
+                                          )}
+                                          disabled={resourceActionIsLoading(
+                                            'folder:file',
+                                            resourceAction.file['file:share'].id,
+                                          )}
+                                        >
+                                          Share
+                                        </Button>
+                                      );
+                                    }
+                                    return (
+                                      <>
+                                        <Input
+                                          type='text'
+                                          name='generated_link'
+                                          value={fetcherData.data.url}
+                                          autoComplete='off'
+                                          uncontrolled
+                                        />
+                                        <Button
+                                          type='button'
+                                          size='xs'
+                                          testId='btn__copy__link'
+                                          onClick={handleCopyToClipboard}
+                                        >
+                                          {copyToClipBoard
+                                            ? 'Link copied to clipboard'
+                                            : 'Copy Link'}
+                                        </Button>
+                                      </>
+                                    );
+                                  })()}
+                                </div>
+                              </fetcher.Form>
+                            </Modal>
+                          </div>
+                        );
+                      })()}
                     </FileModal>
                   ))}
               </>
