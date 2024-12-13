@@ -9,7 +9,7 @@ export default function FileService(client) {
       headers.append('Content-Type', 'application/json');
 
       const [error, data] = await client.callApi(
-        `api/v1/files/${fileDTO.id}/link`,
+        `api/v1/files/${fileDTO.id}/link?expiresIn=${fileDTO.expiresIn || '1h'}`,
         'GET',
         headers,
         {},

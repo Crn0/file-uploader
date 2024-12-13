@@ -11,9 +11,9 @@ const client = new ApiRequest(BASE_URL, AuthProvider);
 
 const service = FileService(client);
 
-const destroy = async (request, params) => {
+const destroy = async (request, formData) => {
   const fileDTO = {
-    id: Number(params.get('fileId')),
+    id: Number(formData.get('fileId')),
   };
 
   if (!AuthProvider.token) return replace(`/login?from=/files/${fileDTO.id}&action=file:delete`);
@@ -31,9 +31,10 @@ const destroy = async (request, params) => {
   }
 };
 
-const share = async (request, params) => {
+const share = async (request, formData) => {
   const fileDTO = {
-    id: Number(params.get('fileId')),
+    id: Number(formData.get('fileId')),
+    expiresIn: formData.get('expiration'),
   };
 
   if (!AuthProvider.token) return replace(`/login?from=/files/${fileDTO.id}&action=file:share`);
