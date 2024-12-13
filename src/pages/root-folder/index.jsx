@@ -3,7 +3,7 @@ import { useLoaderData, Await, useFetcher } from 'react-router-dom';
 import { reducer, reducerState } from './reducer';
 import ActionHeader from './ActionHeader';
 import SortHeader from './SortHeader';
-import FileComponent from './Files';
+import FileComponent from './File';
 import FolderComponent from './Folder';
 import Spinner from '../../components/ui/spinner';
 import FileModal from '../../components/ui/modal/FileModal';

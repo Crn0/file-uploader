@@ -3,7 +3,7 @@ import { useLoaderData, Await, useFetcher } from 'react-router-dom';
 import { reducer, reducerState } from './reducer';
 import ActionHeader from './ActionHeader';
 import SortHeader from './SortHeader';
-import FileComponent from './Files';
+import FileComponent from './File';
 import FolderComponent from './Folder';
 import Label from '../../components/ui/form/Label';
 import Input from '../../components/ui/form/Input';
@@ -342,7 +342,7 @@ export default function Folder() {
                                   <Input
                                     type='hidden'
                                     name='fileId'
-                                    value={String(resourceAction.file['file:share'].id)}
+                                    value={resourceAction.file['file:share'].id}
                                     autoComplete='off'
                                   />
                                   <fieldset>
