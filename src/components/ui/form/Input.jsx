@@ -20,7 +20,6 @@ export default function Input({
     return (
       <input
         className={`${customStyles}`}
-        value={value}
         type={type}
         name={name}
         onBlur={onBlur}
