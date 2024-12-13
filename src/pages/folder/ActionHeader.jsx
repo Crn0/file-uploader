@@ -144,7 +144,12 @@ export default function ActionHeader({ setFolders, setFiles, resourceAction, dis
                 <div>
                   <Form action={`/folders/${folder.id}`} method='POST'>
                     <Input type='hidden' name='intent' value='folder:share' autoComplete='off' />
-                    <Input type='hidden' name='folderId' value={folder.id} autoComplete='off' />
+                    <Input
+                      type='hidden'
+                      name='folderId'
+                      value={String(folder.id)}
+                      autoComplete='off'
+                    />
                     <fieldset>
                       <legend>Genarate a link to share</legend>
                       <div>
@@ -232,7 +237,6 @@ export default function ActionHeader({ setFolders, setFiles, resourceAction, dis
                               name='generated_link'
                               value={actionData.url}
                               autoComplete='off'
-                              uncontrolled
                             />
                             <Button
                               type='button'
@@ -253,7 +257,20 @@ export default function ActionHeader({ setFolders, setFiles, resourceAction, dis
               <div>
                 <Form action={`/folders/${folder.id}`} method='POST'>
                   <Input type='hidden' name='intent' value='folder:delete' autoComplete='off' />
-                  <Button type='submit' size='lg' testId='btn__delete__folder'>
+                  <Input type='hidden' name='folderId' value={`${folder.id}`} autoComplete='off' />
+                  <Input
+                    type='hidden'
+                    name='parentId'
+                    value={`${folder.parentId}`}
+                    autoComplete='off'
+                  />
+                  <Button
+                    type='submit'
+                    size='lg'
+                    testId='btn__delete__folder'
+                    isLoading={isSubmitting}
+                    disabled={isSubmitting}
+                  >
                     Delete
                   </Button>
                 </Form>
@@ -271,33 +288,33 @@ ActionHeader.propTypes = {
   setFiles: PropTypes.func.isRequired,
   dispatch: PropTypes.func.isRequired,
   resourceAction: PropTypes.shape({
-    file: {
-      'file:share': {
+    file: PropTypes.shape({
+      'file:share': PropTypes.shape({
         id: PropTypes.number,
         on: PropTypes.bool.isRequired,
-      },
-      'file:preview': {
+      }),
+      'file:preview': PropTypes.shape({
         id: PropTypes.number,
         on: PropTypes.bool.isRequired,
-      },
-      'file:download': {
+      }),
+      'file:download': PropTypes.shape({
         id: PropTypes.number,
         on: PropTypes.bool.isRequired,
-      },
-      'file:delete': {
+      }),
+      'file:delete': PropTypes.shape({
         id: PropTypes.number,
         on: PropTypes.bool.isRequired,
-      },
-    },
-    folder: {
-      'folder:share': {
+      }),
+    }),
+    folder: PropTypes.shape({
+      'folder:share': PropTypes.shape({
         id: PropTypes.number,
         on: PropTypes.bool.isRequired,
-      },
-      'folder:delete': {
+      }),
+      'folder:delete': PropTypes.shape({
         id: PropTypes.number,
         on: PropTypes.bool.isRequired,
-      },
-    },
+      }),
+    }),
   }),
 };
