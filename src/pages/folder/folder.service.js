@@ -109,5 +109,28 @@ export default function FolderService(client) {
     }
   };
 
-  return Object.freeze({ getFolder, createSubFolder, createFile, generateLink });
+  const destroy = async (folderDTO, request) => {
+    try {
+      const headers = new Headers();
+
+      const [error, data] = await client.callApi(
+        `api/v1/folders/${folderDTO.folderId}`,
+        'DELETE',
+        headers,
+        {},
+        request,
+        true,
+      );
+
+      if (error) throw error;
+
+      return [null, data];
+    } catch (e) {
+      if (e instanceof APIError) return [e, null];
+
+      throw e;
+    }
+  };
+
+  return Object.freeze({ getFolder, createSubFolder, createFile, generateLink, destroy });
 }
