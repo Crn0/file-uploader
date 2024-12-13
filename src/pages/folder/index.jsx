@@ -5,7 +5,6 @@ import ActionHeader from './ActionHeader';
 import SortHeader from './SortHeader';
 import FileComponent from './Files';
 import FolderComponent from './Folder';
-import Form from '../../components/ui/form';
 import Label from '../../components/ui/form/Label';
 import Input from '../../components/ui/form/Input';
 import FileModal from '../../components/ui/modal/FileModal';
@@ -249,20 +248,24 @@ export default function Folder() {
                           </Button>
                         </div>
 
-                        {file.extension !== 'epub' && (
-                          <div>
-                            <Button
-                              type='submit'
-                              size='xs'
-                              isLoading={resourceActionIsLoading('file:preview', file.id)}
-                              disabled={resourceActionIsLoading('file:preview', file.id)}
-                              onClick={handleFileAction(file.id, 'file:preview')}
-                              testId='btn__file__preview'
-                            >
-                              Preview
-                            </Button>
-                          </div>
-                        )}
+                        {(() => {
+                          if (file.extension === 'epub') return null;
+
+                          return (
+                            <div>
+                              <Button
+                                type='submit'
+                                size='xs'
+                                isLoading={resourceActionIsLoading('file:preview', file.id)}
+                                disabled={resourceActionIsLoading('file:preview', file.id)}
+                                onClick={handleFileAction(file.id, 'file:preview')}
+                                testId='btn__file__preview'
+                              >
+                                Preview
+                              </Button>
+                            </div>
+                          );
+                        })()}
 
                         <div>
                           <Button
@@ -339,7 +342,7 @@ export default function Folder() {
                                   <Input
                                     type='hidden'
                                     name='fileId'
-                                    value={resourceAction.file['file:share'].id}
+                                    value={String(resourceAction.file['file:share'].id)}
                                     autoComplete='off'
                                   />
                                   <fieldset>
@@ -439,7 +442,6 @@ export default function Folder() {
                                             name='generated_link'
                                             value={fetcherData.data.url}
                                             autoComplete='off'
-                                            uncontrolled
                                           />
                                           <Button
                                             type='button'
