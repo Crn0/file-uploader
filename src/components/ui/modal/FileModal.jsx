@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import Button from '../button';
 import useOnClickOutside from '../../../hooks/useOnClickOutside';
 
-export default function PreviewModal({
+export default function FileModal({
   children,
   title,
   buttonChildren,
@@ -12,7 +12,6 @@ export default function PreviewModal({
   setActiveId,
   done,
   on,
-  dispatch,
 }) {
   const ref = useRef();
   const isModalOpen = activeId === modalId;
@@ -22,16 +21,7 @@ export default function PreviewModal({
     setActiveId(-1);
   };
 
-  useOnClickOutside(ref, close, done, on, () => {
-    dispatch({
-      field: 'file',
-      type: 'file:preview',
-      value: {
-        id: null,
-        on: false,
-      },
-    });
-  });
+  useOnClickOutside(ref, close, done, on);
 
   return (
     <>
@@ -64,7 +54,7 @@ export default function PreviewModal({
   );
 }
 
-PreviewModal.propTypes = {
+FileModal.propTypes = {
   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.element), PropTypes.element])
     .isRequired,
   title: PropTypes.string.isRequired,
@@ -75,5 +65,4 @@ PreviewModal.propTypes = {
   setActiveId: PropTypes.func.isRequired,
   done: PropTypes.bool,
   on: PropTypes.bool,
-  dispatch: PropTypes.func.isRequired,
 };

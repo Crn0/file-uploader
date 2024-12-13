@@ -3,6 +3,7 @@ import registerLoader from '../pages/register/register.loader';
 import loaginLoader from '../pages/login/login.loader';
 import rootFolderLoader from '../pages/root-folder/root-folder.loader';
 import fileLoader from '../pages/file/file.loader';
+import folderLoader from '../pages/folder/folder.loader';
 
 export default {
   appLoader,
@@ -10,4 +11,5 @@ export default {
   loaginLoader,
   rootFolderLoader,
   fileLoader,
+  folderLoader,
 };

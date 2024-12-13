@@ -3,12 +3,15 @@ import App from '../pages/app';
 import Register from '../pages/register';
 import Login from '../pages/login';
 import RootFolder from '../pages/root-folder/index';
+import Folder from '../pages/folder/index';
 import ErrorHandler from '../components/ui/error';
 import loaders from '../loaders';
 import actions from '../actions';
 
-const { registerAction, loginAction, appAction, rootFolderAction, fileAction } = actions;
-const { appLoader, registerLoader, loaginLoader, rootFolderLoader, fileLoader } = loaders;
+const { appLoader, registerLoader, loaginLoader, rootFolderLoader, fileLoader, folderLoader } =
+  loaders;
+const { registerAction, loginAction, appAction, rootFolderAction, fileAction, folderAction } =
+  actions;
 
 const routes = [
   {
@@ -31,6 +34,13 @@ const routes = [
         loader: rootFolderLoader.getRootFolder,
         element: <RootFolder />,
         shouldRevalidate: () => false,
+        errorElement: <ErrorHandler />,
+      },
+      {
+        path: 'folders/:folderId',
+        loader: folderLoader,
+        action: folderAction,
+        element: <Folder />,
         errorElement: <ErrorHandler />,
       },
       {
