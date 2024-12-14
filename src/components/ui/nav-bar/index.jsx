@@ -48,7 +48,7 @@ export default function NavBar() {
             </fetcher.Form>
           </div>
         );
-      })(user)}
+      })(user?.username)}
     </nav>
   );
 }
