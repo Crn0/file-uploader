@@ -4,12 +4,20 @@ import Register from '../pages/register';
 import Login from '../pages/login';
 import RootFolder from '../pages/root-folder/index';
 import Folder from '../pages/folder/index';
+import Share from '../pages/share';
 import ErrorHandler from '../components/ui/error';
 import loaders from '../loaders';
 import actions from '../actions';
 
-const { appLoader, registerLoader, loaginLoader, rootFolderLoader, fileLoader, folderLoader } =
-  loaders;
+const {
+  appLoader,
+  registerLoader,
+  loaginLoader,
+  rootFolderLoader,
+  fileLoader,
+  folderLoader,
+  shareLoader,
+} = loaders;
 const { registerAction, loginAction, appAction, rootFolderAction, fileAction, folderAction } =
   actions;
 
@@ -29,7 +37,7 @@ const routes = [
         element: <RootFolder />,
       },
       {
-        path: '/root-folder',
+        path: 'root-folder',
         action: rootFolderAction,
         loader: rootFolderLoader.getRootFolder,
         element: <RootFolder />,
@@ -69,7 +77,13 @@ const routes = [
     element: <Login />,
     errorElement: <ErrorHandler />,
   },
-
+  {
+    path: '/share',
+    loader: shareLoader,
+    action: fileAction,
+    element: <Share />,
+    errorElement: <ErrorHandler />,
+  },
   {
     path: '*',
     action: () => replace('/'),
