@@ -330,7 +330,7 @@ export default function RootFolder() {
                                 <Input
                                   type='hidden'
                                   name='fileId'
-                                  value={resourceAction.file['file:share'].id}
+                                  value={String(resourceAction.file['file:share'].id)}
                                   autoComplete='off'
                                 />
                                 <fieldset>
