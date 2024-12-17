@@ -229,6 +229,17 @@ export default function RootFolder() {
                         })()}
                       </div>
 
+                      <div>
+                        <Button
+                          type='submit'
+                          size='xs'
+                          onClick={() => handleFileShare(file.id)}
+                          testId='btn__file__share'
+                        >
+                          Share
+                        </Button>
+                      </div>
+
                       {file.extension !== 'epub' && (
                         <div>
                           <Button
@@ -254,17 +265,6 @@ export default function RootFolder() {
                           testId='btn__file__download'
                         >
                           Download
-                        </Button>
-                      </div>
-
-                      <div>
-                        <Button
-                          type='submit'
-                          size='xs'
-                          onClick={() => handleFileShare(file.id)}
-                          testId='btn__file__share'
-                        >
-                          Share
                         </Button>
                       </div>
 
