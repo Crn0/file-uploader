@@ -45,6 +45,43 @@ const sortResources = async (request, params) => {
   }
 };
 
+const preview = async (request, params) => {
+  const folderDTO = {
+    fileId: Number(params.get('id')),
+    token: params.get('token'),
+  };
+
+  try {
+    const [error, data] = await service.preview(request, folderDTO);
+
+    if (error) throw error;
+    return [null, data];
+  } catch (e) {
+    if (e instanceof APIError || e instanceof FieldError) return [e, null];
+
+    throw e;
+  }
+};
+
+const download = async (request, params) => {
+  const folderDTO = {
+    fileId: Number(params.get('id')),
+    token: params.get('token'),
+  };
+
+  try {
+    const [error, data] = await service.download(request, folderDTO);
+
+    if (error) throw error;
+
+    return [null, data];
+  } catch (e) {
+    if (e instanceof APIError || e instanceof FieldError) return [e, null];
+
+    throw e;
+  }
+};
+
 export default async function loader({ request }) {
   const location = new URL(request.url);
   const params = new URLSearchParams(location.search);
@@ -53,6 +90,8 @@ export default async function loader({ request }) {
 
   if (type === 'sub-folder') return getSubFolder(request, params);
   if (intent === 'folder:sort') return sortResources(request, params);
+  if (intent === 'file:preview') return preview(request, params);
+  if (intent === 'file:download') return download(request, params);
 
   return getFolder(request, params);
 }

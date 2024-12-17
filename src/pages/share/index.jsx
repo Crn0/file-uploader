@@ -28,9 +28,7 @@ function Wrapper() {
   const fetcher = useFetcher();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  console.log(fetcher.data);
   const [resourceAction, dispatch] = useReducer(reducer, reducerState);
-
   const [activeId, setActiveId] = useState(-1);
   const paths = useMemo(() => asyncData.path, [asyncData]);
   const [folders, setFolders] = useState([]);
@@ -47,8 +45,9 @@ function Wrapper() {
         const formData = new FormData();
         formData.append('intent', action);
         formData.append('id', id);
+        formData.append('token', params.get('token'));
 
-        fetcher.submit(formData, { action: `/files/${id}` });
+        fetcher.submit(formData, { action: '/share' });
       }
 
       dispatch({
