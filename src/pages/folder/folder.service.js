@@ -25,6 +25,30 @@ export default function FolderService(client) {
     }
   };
 
+  const sortResources = async (request, folderDTO) => {
+    try {
+      const headers = new Headers();
+
+      headers.append('Content-Type', 'application/json');
+
+      const [error, data] = await client.callApi(
+        `api/v1/folders/${folderDTO.folderId}?sortBy=${folderDTO.sort}&includes=folders,files&limit=1000`,
+        'GET',
+        headers,
+        {},
+        request,
+      );
+
+      if (error) throw error;
+
+      return [null, data];
+    } catch (e) {
+      if (e instanceof APIError) return [e, null];
+
+      throw e;
+    }
+  };
+
   const createSubFolder = async (folderInputDTO, request) => {
     try {
       const headers = new Headers();
@@ -132,5 +156,12 @@ export default function FolderService(client) {
     }
   };
 
-  return Object.freeze({ getFolder, createSubFolder, createFile, generateLink, destroy });
+  return Object.freeze({
+    getFolder,
+    sortResources,
+    createSubFolder,
+    createFile,
+    generateLink,
+    destroy,
+  });
 }

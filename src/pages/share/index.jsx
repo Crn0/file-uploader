@@ -1,4 +1,4 @@
-import { useState, Suspense, useEffect, useReducer } from 'react';
+import { useState, Suspense, useEffect, useReducer, useMemo } from 'react';
 import { useLoaderData, Await, useFetcher, useAsyncValue, useLocation } from 'react-router-dom';
 import { reducer, reducerState } from './reducer';
 import Header from '../../components/ui/header';
@@ -21,20 +21,18 @@ function deepEqual(x, y) {
 }
 
 function Wrapper() {
-  const [
-    _,
-    {
-      path: paths,
-      data: { folder },
-    },
-  ] = useAsyncValue();
+  const [error, asyncData] = useAsyncValue();
+
+  if (error) throw error;
+
   const fetcher = useFetcher();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-
+  console.log(fetcher.data);
   const [resourceAction, dispatch] = useReducer(reducer, reducerState);
 
   const [activeId, setActiveId] = useState(-1);
+  const paths = useMemo(() => asyncData.path, [asyncData]);
   const [folders, setFolders] = useState([]);
   const [files, setFiles] = useState([]);
   const [fetcherData, setFetcherData] = useState({ prev: undefined, data: null });
@@ -89,9 +87,10 @@ function Wrapper() {
   };
 
   useEffect(() => {
-    if (folder) {
-      setFolders(folder.folders);
-      setFiles(folder.files);
+    if (asyncData) {
+      const { data } = asyncData;
+      setFolders(data.folder.folders);
+      setFiles(data.folder.files);
     }
 
     if (!isLoading && resourceAction.file['file:preview'].on) {
@@ -105,7 +104,7 @@ function Wrapper() {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [resourceAction, isLoading, isSubmitting, fetcher.data, fetcherData.prev, folder]);
+  }, [resourceAction, isLoading, isSubmitting, fetcher.data, fetcherData.prev, asyncData]);
 
   return (
     <>
@@ -162,9 +161,9 @@ function Wrapper() {
             if (isLoading && isPreview) return <Spinner />;
             if (!isPreview) return null;
 
-            const [error, apiData] = fetcher.data;
+            const [e, apiData] = fetcher.data;
 
-            if (error) throw error;
+            if (e) throw e;
 
             return (
               <div>
