@@ -32,14 +32,14 @@ const routes = [
     children: [
       {
         index: true,
-        loader: rootFolderLoader.getRootFolder,
+        loader: rootFolderLoader,
         shouldRevalidate: () => false,
         element: <RootFolder />,
       },
       {
         path: 'root-folder',
         action: rootFolderAction,
-        loader: rootFolderLoader.getRootFolder,
+        loader: rootFolderLoader,
         element: <RootFolder />,
         shouldRevalidate: () => false,
         errorElement: <ErrorHandler />,
