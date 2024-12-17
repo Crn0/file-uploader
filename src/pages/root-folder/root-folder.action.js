@@ -1,10 +1,8 @@
-import { replace } from 'react-router-dom';
 import AuthProvider from '../../provider/auth.provider';
 import RootFolderService from './root-folder.service';
 import ApiRequest from '../../api/apiRequest';
 import APIError from '../../errors/api.error';
 import FieldError from '../../errors/field.error';
-import validation from '../../validation/index';
 
 const BASE_URL = import.meta.env.VITE_SERVER_URL;
 

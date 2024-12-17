@@ -37,7 +37,6 @@ const getRootFolder = async (request) => {
   if (!AuthProvider.token) return replace('/login?from=/root-folder');
 
   try {
-    console.log(42);
     return { data: service.getRoot(request) };
   } catch (e) {
     return replace('/login');
