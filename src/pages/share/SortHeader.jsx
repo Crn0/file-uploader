@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
-import { useAsyncValue, useFetcher } from 'react-router-dom';
+import { useAsyncValue, useFetcher, useLocation } from 'react-router-dom';
 import Button from '../../components/ui/button';
-import styles from './css/action-header.module.css';
+import styles from './css/sort-header.module.css';
 
 export default function SortHeader({ setFolders, setFiles }) {
   const [
@@ -14,16 +14,19 @@ export default function SortHeader({ setFolders, setFiles }) {
 
   const fetcher = useFetcher();
   const [sort, setSort] = useState('ASC');
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
 
   const sortName = () => {
     const formData = new FormData();
     const sortBy = sort === 'ASC' ? 'name' : '-name';
 
+    formData.append('token', params.get('token'));
     formData.append('intent', 'folder:sort');
     formData.append('id', folder.id);
     formData.append('sort', sortBy);
 
-    fetcher.submit(formData, { action: `/folders/${folder.id}` });
+    fetcher.submit(formData, { action: '/share' });
     setSort((prev) => (prev === 'ASC' ? 'DESC' : 'ASC'));
   };
 
@@ -31,11 +34,12 @@ export default function SortHeader({ setFolders, setFiles }) {
     const formData = new FormData();
     const sortBy = sort === 'ASC' ? 'createdAt' : '-createdAt';
 
+    formData.append('token', params.get('token'));
     formData.append('intent', 'folder:sort');
     formData.append('id', folder.id);
     formData.append('sort', sortBy);
 
-    fetcher.submit(formData, { action: `/folders/${folder.id}` });
+    fetcher.submit(formData, { action: '/share' });
     setSort((prev) => (prev === 'ASC' ? 'DESC' : 'ASC'));
   };
 

@@ -123,11 +123,17 @@ const callAPIWithoutToken = async (url, method, headers, dataToSend, signal) => 
 
     const data = await responce.json();
 
-    if (data?.code >= 400 && data?.errors[0].type === 'field')
+    if (responce?.status === 302) {
+      window.location.href = data.url;
+      return [null, null];
+    }
+
+    if (data?.code >= 400 && data?.errors?.[0]?.type === 'field') {
       throw new FieldError(data.message, data.errors, data.code);
+    }
 
     if (data?.code >= 400) {
-      throw new FieldError(data.message, data.errors, data.code);
+      throw new APIError(data.message, data.code);
     }
 
     return [null, data];

@@ -78,6 +78,8 @@ export default async function loader({ request }) {
   const params = new URLSearchParams(location.search);
   const intent = params.get('intent');
 
+  console.log(intent, intent === 'file:preview');
+
   if (intent === 'file:preview') return preview(request, params);
   if (intent === 'file:share') return share(request, params);
   if (intent === 'file:download') return download(request, params);

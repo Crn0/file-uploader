@@ -4,6 +4,7 @@ import loaginLoader from '../pages/login/login.loader';
 import rootFolderLoader from '../pages/root-folder/root-folder.loader';
 import fileLoader from '../pages/file/file.loader';
 import folderLoader from '../pages/folder/folder.loader';
+import shareLoader from '../pages/share/share.loader';
 
 export default {
   appLoader,
@@ -12,4 +13,5 @@ export default {
   rootFolderLoader,
   fileLoader,
   folderLoader,
+  shareLoader,
 };

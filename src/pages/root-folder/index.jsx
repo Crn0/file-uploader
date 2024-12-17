@@ -3,7 +3,7 @@ import { useLoaderData, Await, useFetcher } from 'react-router-dom';
 import { reducer, reducerState } from './reducer';
 import ActionHeader from './ActionHeader';
 import SortHeader from './SortHeader';
-import FileComponent from './Files';
+import FileComponent from './File';
 import FolderComponent from './Folder';
 import Spinner from '../../components/ui/spinner';
 import FileModal from '../../components/ui/modal/FileModal';
@@ -23,9 +23,8 @@ function deepEqual(x, y) {
 }
 
 export default function RootFolder() {
-  const { data } = useLoaderData();
+  const data = useLoaderData()?.data;
   const fetcher = useFetcher();
-
   const [resourceAction, dispatch] = useReducer(reducer, reducerState);
 
   const [activeId, setActiveId] = useState(-1);
@@ -230,6 +229,17 @@ export default function RootFolder() {
                         })()}
                       </div>
 
+                      <div>
+                        <Button
+                          type='submit'
+                          size='xs'
+                          onClick={() => handleFileShare(file.id)}
+                          testId='btn__file__share'
+                        >
+                          Share
+                        </Button>
+                      </div>
+
                       {file.extension !== 'epub' && (
                         <div>
                           <Button
@@ -255,17 +265,6 @@ export default function RootFolder() {
                           testId='btn__file__download'
                         >
                           Download
-                        </Button>
-                      </div>
-
-                      <div>
-                        <Button
-                          type='submit'
-                          size='xs'
-                          onClick={() => handleFileShare(file.id)}
-                          testId='btn__file__share'
-                        >
-                          Share
                         </Button>
                       </div>
 
@@ -331,7 +330,7 @@ export default function RootFolder() {
                                 <Input
                                   type='hidden'
                                   name='fileId'
-                                  value={resourceAction.file['file:share'].id}
+                                  value={String(resourceAction.file['file:share'].id)}
                                   autoComplete='off'
                                 />
                                 <fieldset>
@@ -431,7 +430,6 @@ export default function RootFolder() {
                                           name='generated_link'
                                           value={fetcherData.data.url}
                                           autoComplete='off'
-                                          uncontrolled
                                         />
                                         <Button
                                           type='button'

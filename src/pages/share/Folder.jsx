@@ -1,10 +1,12 @@
 import PropTypes from 'prop-types';
 import Link from '../../components/ui/link';
 
-export default function FolderComponent({ folder }) {
+export default function FolderComponent({ folder, url }) {
+  const to = `${url}&folderId=${folder.id}&type=sub-folder`;
+
   return (
     <div style={{ display: 'flex' }}>
-      <Link to={`/folders/${folder.id}`}>
+      <Link to={to}>
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '50dvw' }}>
           <p>{folder.name}</p>
           <p>{folder.type}</p>
@@ -17,6 +19,7 @@ export default function FolderComponent({ folder }) {
 }
 
 FolderComponent.propTypes = {
+  url: PropTypes.string.isRequired,
   folder: PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
