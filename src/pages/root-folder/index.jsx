@@ -430,7 +430,6 @@ export default function RootFolder() {
                                           name='generated_link'
                                           value={fetcherData.data.url}
                                           autoComplete='off'
-                                          uncontrolled
                                         />
                                         <Button
                                           type='button'
