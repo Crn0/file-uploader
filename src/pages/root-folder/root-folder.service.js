@@ -25,6 +25,30 @@ export default function RootFolderService(client) {
     }
   };
 
+  const sortResources = async (request, folderDTO) => {
+    try {
+      const headers = new Headers();
+
+      headers.append('Content-Type', 'application/json');
+
+      const [error, data] = await client.callApi(
+        `api/v1/folders/${folderDTO.folderId}?sortBy=${folderDTO.sort}&includes=folders,files&limit=1000`,
+        'GET',
+        headers,
+        {},
+        request,
+      );
+
+      if (error) throw error;
+
+      return [null, data];
+    } catch (e) {
+      if (e instanceof APIError) return [e, null];
+
+      throw e;
+    }
+  };
+
   const createSubFolder = async (folderInputDTO, request) => {
     try {
       const headers = new Headers();
@@ -83,5 +107,5 @@ export default function RootFolderService(client) {
     }
   };
 
-  return Object.freeze({ getRoot, createSubFolder, createFile });
+  return Object.freeze({ getRoot, createSubFolder, createFile, sortResources });
 }

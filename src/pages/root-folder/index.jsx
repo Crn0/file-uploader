@@ -23,9 +23,8 @@ function deepEqual(x, y) {
 }
 
 export default function RootFolder() {
-  const { data } = useLoaderData();
+  const data = useLoaderData()?.data;
   const fetcher = useFetcher();
-
   const [resourceAction, dispatch] = useReducer(reducer, reducerState);
 
   const [activeId, setActiveId] = useState(-1);

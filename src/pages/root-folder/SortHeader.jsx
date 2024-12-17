@@ -40,9 +40,11 @@ export default function SortHeader({ setFolders, setFiles }) {
   };
 
   useEffect(() => {
-    if (fetcher.data) {
-      setFolders(folder.folders);
-      setFiles(folder.files);
+    if (fetcher.data?.[1]) {
+      const { data } = fetcher.data[1];
+
+      setFolders(data.folder.folders);
+      setFiles(data.folder.files);
     }
   }, [fetcher.data, folder.files, folder.folders, setFiles, setFolders]);
 
