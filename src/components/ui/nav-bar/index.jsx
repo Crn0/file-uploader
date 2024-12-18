@@ -5,8 +5,9 @@ import UserContext from '../../../context/user.context';
 import Input from '../form/Input';
 import Button from '../button';
 import Link from '../link';
+import style from './css/index.module.css';
 
-export default function NavBar() {
+export default function NavBar({ customStyles }) {
   const user = useContext(UserContext);
   const fetcher = useFetcher({ key: 'logout' });
 
@@ -17,23 +18,26 @@ export default function NavBar() {
     AuthProvider.user = null;
     AuthProvider.token = null;
   };
+
   return (
-    <nav>
+    <nav className={`${style.center}`}>
       {((isAuth) => {
         if (!isAuth) {
           return (
-            <div>
+            <div className={`${style.center}  ${customStyles}`}>
               {['Register', 'Login'].map((url) => (
-                <Link key={url} to={`${url}`}>
-                  {url}
-                </Link>
+                <div key={url} className={`${style.center}`}>
+                  <Link to={`${url}`} customStyles={`${style.link} ${style['link--dark']}`}>
+                    {url}
+                  </Link>
+                </div>
               ))}
             </div>
           );
         }
 
         return (
-          <div>
+          <div className={`${style.center}  ${customStyles}`}>
             <fetcher.Form method='POST' action='/'>
               <Input type='hidden' name='intent' autoComplete='off' value='logout' />
               <Button
@@ -42,6 +46,7 @@ export default function NavBar() {
                 onClick={handleLogout}
                 isLoading={isLoading}
                 disabled={isSubmitting}
+                customStyles={`${style.link} ${style['link--dark']}`}
               >
                 Logout
               </Button>

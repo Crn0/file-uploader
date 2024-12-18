@@ -1,0 +1,35 @@
+:root {
+  --link-light-color: var(--pure-dark);
+  --link-dark-color: var(--white);
+}
+
+.link {
+  border: none;
+  background: none;
+  padding: 0;
+  font-weight: inherit;
+  text-transform: capitalize;
+  letter-spacing: inherit;
+  line-height: initial;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 1s 0s;
+}
+
+.link--dark {
+  color: var(--link-dark-color);
+}
+
+.link--light {
+  color: var(--link-light-color);
+}
+
+.link:hover {
+  opacity: 2;
+}
+
+.center {
+  display: grid;
+  place-content: center;
+  place-items: center;
+}

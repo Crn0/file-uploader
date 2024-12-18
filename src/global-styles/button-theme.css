@@ -1,0 +1,14 @@
+:root {
+  --auth-btn-color: #0d6efd;
+  --auth-btn-border-color: #0d6efd;
+  --auth-btn-hover-color: #fff;
+  --auth-btn-hover-bg: #0d6efd;
+  --auth-btn-hover-border-color: #0d6efd;
+  --auth-btn-active-color: #fff;
+  --auth-btn-active-bg: #0d6efd;
+  --auth-btn-active-border-color: #0d6efd;
+  --auth-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --auth-btn-disabled-color: #0d6efd;
+  --auth-btn-disabled-bg: transparent;
+  --auth-btn-disabled-border-color: #0d6efd;
+}
