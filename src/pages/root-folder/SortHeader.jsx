@@ -5,15 +5,13 @@ import Button from '../../components/ui/button';
 import styles from './css/action-header.module.css';
 
 export default function SortHeader({ setFolders, setFiles }) {
-  const [
-    _,
-    {
-      data: { folder },
-    },
-  ] = useAsyncValue();
+  const [error, asyncData] = useAsyncValue();
+
+  if (error) throw error;
 
   const fetcher = useFetcher();
   const [sort, setSort] = useState('ASC');
+  const folder = asyncData.data?.folder;
 
   const sortName = () => {
     const formData = new FormData();

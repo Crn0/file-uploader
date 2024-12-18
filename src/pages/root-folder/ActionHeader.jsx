@@ -7,17 +7,14 @@ import styles from './css/action-header.module.css';
 import Link from '../../components/ui/link';
 
 export default function ActionHeader({ setFolders, setFiles }) {
-  const [
-    error,
-    {
-      path: paths,
-      data: { folder },
-    },
-  ] = useAsyncValue();
+  const [error, asyncData] = useAsyncValue();
+
+  if (error) throw error;
+
+  const folder = asyncData?.data.folder;
+  const paths = asyncData?.path;
 
   useEffect(() => {
-    if (error) throw error;
-
     if (folder) {
       setFolders(folder.folders);
       setFiles(folder.files);
