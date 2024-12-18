@@ -4,6 +4,8 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import routes from './routes';
 import './global-styles/index.css';
 import './global-styles/reset.css';
+import './global-styles/theme.css';
+import './global-styles/button-theme.css';
 
 const router = createBrowserRouter(routes);
 
