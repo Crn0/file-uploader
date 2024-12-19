@@ -1,20 +1,20 @@
 import PropTypes from 'prop-types';
-import Link from '../../components/ui/link';
+import { useNavigate } from 'react-router-dom';
 
 export default function FolderComponent({ folder, url }) {
-  const to = `${url}&folderId=${folder.id}&type=sub-folder`;
-
+  const navigate = useNavigate();
+  const handleRowClick = () => {
+    const to = `${url}&folderId=${folder.id}&type=sub-folder`;
+    navigate(to);
+  };
   return (
-    <div style={{ display: 'flex' }}>
-      <Link to={to}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', width: '50dvw' }}>
-          <p>{folder.name}</p>
-          <p>{folder.type}</p>
-          <p>—</p>
-          <time>{folder.createdAt}</time>
-        </div>
-      </Link>
-    </div>
+    <tr onClick={handleRowClick}>
+      <td>{folder.name}</td>
+
+      <td>{folder.type}</td>
+      <td>—</td>
+      <td>{folder.createdAt}</td>
+    </tr>
   );
 }
 
