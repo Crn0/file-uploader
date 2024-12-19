@@ -10,18 +10,21 @@ const client = new ApiRequest(BASE_URL, AuthProvider);
 
 const service = ShareService(client);
 
-const getFolder = async (request, params) => {
+const root = async (request, params) => {
   const folderDTO = {
     token: params.get('token'),
   };
+  const [_, data] = await service.checkAuth(request, AuthProvider);
 
-  return { data: service.getFolder(request, folderDTO) };
+  const user = data?.user || null;
+
+  return { user, data: service.getFolder(request, folderDTO) };
 };
 
 const getSubFolder = async (request, params) => {
   const folderDTO = {
     token: params.get('token'),
-    folderId: params.get('folderId'),
+    folderId: Number(params.get('folderId')),
   };
 
   return { data: service.getSubFolder(request, folderDTO) };
@@ -93,5 +96,5 @@ export default async function loader({ request }) {
   if (intent === 'file:preview') return preview(request, params);
   if (intent === 'file:download') return download(request, params);
 
-  return getFolder(request, params);
+  return root(request, params);
 }

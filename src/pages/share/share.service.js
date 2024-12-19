@@ -2,6 +2,31 @@ import APIError from '../../errors/api.error';
 import FieldError from '../../errors/field.error';
 
 export default function FolderService(client) {
+  const checkAuth = async (request, provider) => {
+    try {
+      const headers = new Headers();
+      const providerRef = provider;
+
+      const [rError, rData] = await providerRef.refresh();
+
+      if (rError) throw rError;
+
+      providerRef.token = rData.accessToken;
+
+      headers.append('Content-Type', 'application/json');
+
+      const [error, data] = await client.callApi('api/v1/users/me', 'GET', headers, {}, request);
+
+      if (error) throw error;
+
+      return [null, data];
+    } catch (e) {
+      if (e instanceof APIError) return [e, null];
+
+      throw e;
+    }
+  };
+
   const getFolder = async (request, folderDTO) => {
     try {
       const headers = new Headers();
@@ -34,7 +59,7 @@ export default function FolderService(client) {
       headers.append('Content-Type', 'application/json');
 
       const [error, data] = await client.callApi(
-        `api/v1/share/${folderDTO.token}?folderId=${folderDTO.folderId}?includes=folders,files&limit=1000`,
+        `api/v1/share/${folderDTO.token}?folderId=${folderDTO.folderId}&includes=folders,files&limit=1000`,
         'GET',
         headers,
         {},
@@ -123,5 +148,5 @@ export default function FolderService(client) {
     }
   };
 
-  return Object.freeze({ getFolder, getSubFolder, sortResources, preview, download });
+  return Object.freeze({ checkAuth, getFolder, getSubFolder, sortResources, preview, download });
 }
