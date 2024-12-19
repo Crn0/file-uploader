@@ -1,26 +1,15 @@
 import PropTypes from 'prop-types';
 
-export default function FileComponent({ file }) {
+export default function FileComponent({ file, setActiveId }) {
+  const open = () => setActiveId(file.id);
+
   return (
-    <div>
-      {/* FILE BODY */}
-      <div style={{ display: 'flex' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', width: '50dvw' }}>
-          <div>
-            <span>{file.name}</span>
-          </div>
-          <div>
-            <span>{file.type}</span>
-          </div>
-          <div>
-            <span>{file.size}</span>
-          </div>
-          <div>
-            <time>{file.createdAt}</time>
-          </div>
-        </div>
-      </div>
-    </div>
+    <tr onClick={open}>
+      <td>{file.name}</td>
+      <td>{file.type}</td>
+      <td>{file.size}</td>
+      <td>{file.createdAt}</td>
+    </tr>
   );
 }
 
@@ -38,4 +27,5 @@ FileComponent.propTypes = {
     deliveryType: PropTypes.string.isRequired,
     resourceType: PropTypes.string.isRequired,
   }),
+  setActiveId: PropTypes.func.isRequired,
 };
