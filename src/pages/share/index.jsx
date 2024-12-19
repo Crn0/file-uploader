@@ -10,6 +10,7 @@ import Spinner from '../../components/ui/spinner';
 import Button from '../../components/ui/button';
 import Link from '../../components/ui/link';
 import styles from './css/index.module.css';
+import UserContext from '../../context/user.context';
 
 function deepEqual(x, y) {
   const ok = Object.keys;
@@ -109,17 +110,38 @@ function Wrapper() {
     <>
       <Header />
 
-      <div>
-        {paths?.map((path, index) => {
-          if (index === 0) {
+      <main>
+        <div>
+          {paths?.map((path, index) => {
+            if (index === 0) {
+              return (
+                <div key={path.id}>
+                  <div>
+                    <div>
+                      <Link to={`${location.pathname}?token=${params.get('token')}`}>
+                        <span>{path.name}</span>
+                      </Link>
+                    </div>
+
+                    {index !== paths.length - 1 && (
+                      <div>
+                        <span> {'>'} </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <div key={path.id}>
                 <div>
-                  <div>
-                    <Link to={`${location.pathname}?token=${params.get('token')}`}>
-                      <span>{path.name}</span>
-                    </Link>
-                  </div>
+                  <Link
+                    key={path.id}
+                    to={`${location.pathname}?token=${params.get('token')}&folderId=${path.id}&type=sub-folder`}
+                  >
+                    {path.name}
+                  </Link>
 
                   {index !== paths.length - 1 && (
                     <div>
@@ -129,178 +151,172 @@ function Wrapper() {
                 </div>
               </div>
             );
-          }
+          })}
+        </div>
 
-          return (
-            <div key={path.id}>
-              <div>
-                <Link
-                  key={path.id}
-                  to={`${location.pathname}?token=${params.get('token')}&folderId=${path.id}&type=sub-folder`}
-                >
-                  {path.name}
-                </Link>
+        {resourceAction.file['file:preview'].on && (
+          <div>
+            {(() => {
+              const isPreview = resourceAction.file['file:preview'].on;
 
-                {index !== paths.length - 1 && (
-                  <div>
-                    <span> {'>'} </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+              if (isLoading && isPreview) return <Spinner />;
+              if (!isPreview) return null;
 
-      {resourceAction.file['file:preview'].on && (
-        <div>
-          {(() => {
-            const isPreview = resourceAction.file['file:preview'].on;
+              const [e, apiData] = fetcher.data;
 
-            if (isLoading && isPreview) return <Spinner />;
-            if (!isPreview) return null;
+              if (e) throw e;
 
-            const [e, apiData] = fetcher.data;
-
-            if (e) throw e;
-
-            return (
-              <div>
+              return (
                 <div>
-                  <div>{apiData?.fileName}</div>
                   <div>
-                    <Button type='button' size='xxs' onClick={closePreview}>
-                      X
-                    </Button>
+                    <div>{apiData?.fileName}</div>
+                    <div>
+                      <Button type='button' size='xxs' onClick={closePreview}>
+                        X
+                      </Button>
+                    </div>
                   </div>
+
+                  {apiData && (
+                    <div style={{ width: '500px' }}>
+                      <img src={apiData.url} alt={apiData.fileName} />
+                    </div>
+                  )}
                 </div>
-
-                {apiData && (
-                  <div style={{ width: '500px' }}>
-                    <img src={apiData.url} alt={apiData.fileName} />
-                  </div>
-                )}
-              </div>
-            );
-          })()}
-        </div>
-      )}
-      <div>
-        <div>
+              );
+            })()}
+          </div>
+        )}
+        <table>
           <SortHeader setFolders={setFolders} setFiles={setFiles} />
-        </div>
-        {/* BODY */}
+
+          {/* BODY */}
+          <tbody>
+            {(() => {
+              if (folders.length === 0 && files.length === 0)
+                return (
+                  <tr>
+                    <td colSpan='4'>Empty folder</td>
+                  </tr>
+                );
+
+              return (
+                <>
+                  {folders.length !== 0 &&
+                    folders.map((folder) => (
+                      <FolderComponent
+                        key={folder.id}
+                        folder={folder}
+                        url={`${location.pathname}?token=${params.get('token')}`}
+                      />
+                    ))}
+                  {files.length !== 0 &&
+                    files.map((file) => (
+                      <FileComponent key={file.id} file={file} setActiveId={setActiveId} />
+                    ))}
+                </>
+              );
+            })()}
+          </tbody>
+        </table>
+
         <div>
-          {(() => {
-            if (folders.length === 0 && files.length === 0) return <p>Empty folder</p>;
+          {files.length !== 0 &&
+            files.map((file) => (
+              <FileModal
+                key={`${file.name} ${file.id}`}
+                title='File detail'
+                buttonText=':'
+                modalId={file.id}
+                activeId={activeId}
+                setActiveId={setActiveId}
+                done={!resourceActionIsLoading('file:preview', file.id)}
+                on={resourceAction.file['file:preview'].on}
+                hasButton={false}
+                isTable
+              >
+                <div>
+                  {(() => {
+                    const validFields = {
+                      name: 'Name',
+                      size: 'Size',
+                      createdAt: 'Created',
+                      type: 'Type',
+                      extension: 'Extension',
+                    };
 
-            return (
-              <>
-                {folders.length !== 0 &&
-                  folders.map((f) => (
-                    <FolderComponent
-                      key={f.id}
-                      folder={f}
-                      url={`${location.pathname}?token=${params.get('token')}`}
-                    />
-                  ))}
-                {files.length !== 0 &&
-                  files.map((file) => (
-                    <FileModal
-                      key={`${file.name} ${file.id}`}
-                      title='File detail'
-                      buttonText=':'
-                      modalId={file.id}
-                      activeId={activeId}
-                      setActiveId={setActiveId}
-                      buttonChildren={<FileComponent key={file.id} file={file} />}
-                      dispatch={dispatch}
-                      done={!resourceActionIsLoading('file:preview', file.id)}
-                      on={resourceAction.file['file:preview'].on}
-                    >
-                      <div>
-                        {(() => {
-                          const validFields = {
-                            name: 'Name',
-                            size: 'Size',
-                            createdAt: 'Created',
-                            type: 'Type',
-                            extension: 'Extension',
-                          };
+                    const entries = Object.entries(file);
 
-                          const entries = Object.entries(file);
+                    return (
+                      <>
+                        {entries.map(([key, _]) => {
+                          if (!validFields[key]) return null;
 
                           return (
-                            <>
-                              {entries.map(([key, _]) => {
-                                if (!validFields[key]) return null;
-
-                                return (
-                                  <div key={`${file.id} ${key}`}>
-                                    <div>
-                                      <span>{validFields[key]}</span>
-                                      <div>
-                                        <span>{file[key]}</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </>
+                            <div key={`${file.id} ${key}`}>
+                              <div>
+                                <span>{validFields[key]}</span>
+                                <div>
+                                  <span>{file[key]}</span>
+                                </div>
+                              </div>
+                            </div>
                           );
-                        })()}
-                      </div>
+                        })}
+                      </>
+                    );
+                  })()}
+                </div>
 
-                      {(() => {
-                        if (file.extension === 'epub') return null;
+                {(() => {
+                  if (file.extension === 'epub') return null;
 
-                        return (
-                          <div>
-                            <Button
-                              type='submit'
-                              size='xs'
-                              isLoading={resourceActionIsLoading('file:preview', file.id)}
-                              disabled={resourceActionIsLoading('file:preview', file.id)}
-                              onClick={handleFileAction(file.id, 'file:preview')}
-                              testId='btn__file__preview'
-                            >
-                              Preview
-                            </Button>
-                          </div>
-                        );
-                      })()}
+                  return (
+                    <div>
+                      <Button
+                        type='submit'
+                        size='xs'
+                        isLoading={resourceActionIsLoading('file:preview', file.id)}
+                        disabled={resourceActionIsLoading('file:preview', file.id)}
+                        onClick={handleFileAction(file.id, 'file:preview')}
+                        testId='btn__file__preview'
+                      >
+                        Preview
+                      </Button>
+                    </div>
+                  );
+                })()}
 
-                      <div>
-                        <Button
-                          type='submit'
-                          size='xs'
-                          isLoading={resourceActionIsLoading('file:download')}
-                          disabled={resourceActionIsLoading('file:download')}
-                          onClick={handleFileAction(file.id, 'file:download')}
-                          testId='btn__file__download'
-                        >
-                          Download
-                        </Button>
-                      </div>
-                    </FileModal>
-                  ))}
-              </>
-            );
-          })()}
+                <div>
+                  <Button
+                    type='submit'
+                    size='xs'
+                    isLoading={resourceActionIsLoading('file:download')}
+                    disabled={resourceActionIsLoading('file:download')}
+                    onClick={handleFileAction(file.id, 'file:download')}
+                    testId='btn__file__download'
+                  >
+                    Download
+                  </Button>
+                </div>
+              </FileModal>
+            ))}
         </div>
-      </div>
+      </main>
     </>
   );
 }
 
 export default function Folder() {
-  const { data } = useLoaderData();
+  const { data, user } = useLoaderData();
 
   return (
-    <Suspense fallback={<Spinner />}>
-      <Await resolve={data}>
-        <Wrapper />
-      </Await>
-    </Suspense>
+    <UserContext.Provider value={user}>
+      <Suspense fallback={<Spinner />}>
+        <Await resolve={data}>
+          <Wrapper />
+        </Await>
+      </Suspense>
+    </UserContext.Provider>
   );
 }

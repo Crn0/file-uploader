@@ -5,15 +5,13 @@ import Button from '../../components/ui/button';
 import styles from './css/action-header.module.css';
 
 export default function SortHeader({ setFolders, setFiles }) {
-  const [
-    _,
-    {
-      data: { folder },
-    },
-  ] = useAsyncValue();
+  const [error, asyncData] = useAsyncValue();
+
+  if (error) throw error;
 
   const fetcher = useFetcher();
   const [sort, setSort] = useState('ASC');
+  const folder = asyncData.data?.folder;
 
   const sortName = () => {
     const formData = new FormData();
@@ -49,29 +47,31 @@ export default function SortHeader({ setFolders, setFiles }) {
   }, [fetcher.data, folder.files, folder.folders, setFiles, setFolders]);
 
   return (
-    <>
-      <div>
-        <Button type='button' na size='lg' onClick={sortName}>
-          Name
-        </Button>
-      </div>
-      <div>
-        <Button type='button' na size='lg'>
-          Type
-        </Button>
-      </div>
-      <div>
-        <Button type='button' na size='lg'>
-          Size
-        </Button>
-      </div>
+    <thead>
+      <tr>
+        <th scope='col' id='name'>
+          <Button type='button' na size='lg' onClick={sortName}>
+            Name
+          </Button>
+        </th>
+        <th scope='col' id='type'>
+          <Button type='button' na size='lg'>
+            Type
+          </Button>
+        </th>
+        <th scope='col' id='size'>
+          <Button type='button' na size='lg'>
+            Size
+          </Button>
+        </th>
 
-      <div>
-        <Button type='button' na size='lg' onClick={sortDate}>
-          Creation Date
-        </Button>
-      </div>
-    </>
+        <th scope='col' id='creation_date'>
+          <Button type='button' na size='lg' onClick={sortDate}>
+            Creation Date
+          </Button>
+        </th>
+      </tr>
+    </thead>
   );
 }
 
