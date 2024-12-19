@@ -12,6 +12,7 @@ export default function FileModal({
   setActiveId,
   done,
   on,
+  hasButton,
 }) {
   const ref = useRef();
   const isModalOpen = activeId === modalId;
@@ -25,11 +26,13 @@ export default function FileModal({
 
   return (
     <>
-      <div>
-        <Button type='button' size='lg' onClick={open} testId='btn__open__modal'>
-          {buttonChildren}
-        </Button>
-      </div>
+      {hasButton && (
+        <div>
+          <Button type='button' size='lg' onClick={open} testId='btn__open__modal'>
+            {buttonChildren}
+          </Button>
+        </div>
+      )}
 
       <div>
         {isModalOpen && (
@@ -58,11 +61,11 @@ FileModal.propTypes = {
   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.element), PropTypes.element])
     .isRequired,
   title: PropTypes.string.isRequired,
-  buttonChildren: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.element), PropTypes.element])
-    .isRequired,
+  buttonChildren: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.element), PropTypes.element]),
   activeId: PropTypes.number.isRequired,
   modalId: PropTypes.number.isRequired,
   setActiveId: PropTypes.func.isRequired,
   done: PropTypes.bool,
   on: PropTypes.bool,
+  hasButton: PropTypes.bool.isRequired,
 };
