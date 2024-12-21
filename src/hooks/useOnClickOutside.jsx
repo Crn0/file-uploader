@@ -1,13 +1,19 @@
 import { useEffect } from 'react';
 
-export default function useOnClickOutside(ref, handler, done = false, on = false) {
+export default function useOnClickOutside(
+  ref,
+  handler,
+  done = false,
+  on = false,
+  hasChildModal = false,
+) {
   useEffect(() => {
     if (done && on) {
       handler();
     }
 
     const listener = (e) => {
-      if (!ref.current || ref.current.contains(e.target)) return;
+      if (!ref.current || ref.current.contains(e.target) || hasChildModal) return;
 
       handler();
     };
@@ -19,5 +25,5 @@ export default function useOnClickOutside(ref, handler, done = false, on = false
       document.removeEventListener('mousedown', listener);
       document.removeEventListener('touchstart', listener);
     };
-  }, [ref, handler, done, on]);
+  }, [ref, handler, done, on, hasChildModal]);
 }
