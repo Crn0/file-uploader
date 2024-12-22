@@ -1,5 +1,8 @@
-import { useState, Suspense, useEffect, useReducer } from 'react';
+import { useState, Suspense, useEffect, useReducer, Fragment } from 'react';
 import { useLoaderData, Await, useFetcher } from 'react-router-dom';
+import dayjs from 'dayjs';
+import Calendar from 'dayjs/plugin/calendar';
+import helpers from '../../helpers';
 import { reducer, reducerState } from './reducer';
 import ActionHeader from './ActionHeader';
 import SortHeader from './SortHeader';
@@ -11,16 +14,11 @@ import Button from '../../components/ui/button';
 import Input from '../../components/ui/form/Input';
 import Modal from '../../components/ui/modal';
 import Label from '../../components/ui/form/Label';
-import styles from './css/resource-form.module.css';
+import styles from './css/index.module.css';
 
-function deepEqual(x, y) {
-  const ok = Object.keys;
-  const tx = typeof x;
-  const ty = typeof y;
-  return x && y && tx === 'object' && tx === ty
-    ? ok(x).length === ok(y).length && ok(x).every((key) => deepEqual(x[key], y[key]))
-    : x === y;
-}
+dayjs.extend(Calendar);
+
+const { deepEqual, formatBytes } = helpers;
 
 export default function RootFolder() {
   const data = useLoaderData()?.data;
@@ -38,7 +36,7 @@ export default function RootFolder() {
   const isSubmitting = fetcher.state === 'submitting';
 
   const handleCopyToClipboard = async () => {
-    await navigator.clipboard.writeText(fetcherData.url);
+    await navigator.clipboard.writeText(fetcherData.data.url);
     setCopyToClipBoard(true);
   };
 
@@ -100,6 +98,10 @@ export default function RootFolder() {
   };
 
   useEffect(() => {
+    if (activeId) {
+      document.body.style.overflowX = 'hidden';
+    }
+
     if (!isLoading && resourceAction.file['file:preview'].on) {
       document.body.style.overflow = 'hidden';
     }
@@ -128,342 +130,427 @@ export default function RootFolder() {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [resourceAction, isLoading, isSubmitting, fetcher.data, fetcherData.prev]);
+  }, [resourceAction, isLoading, isSubmitting, fetcher.data, fetcherData.prev, activeId]);
 
   return (
     <Suspense fallback={<Spinner />}>
       <Await resolve={data}>
-        {resourceAction && (
-          <div>
-            {(() => {
-              const isPreview = resourceAction.file['file:preview'].on;
+        <div className={`${styles.main}`}>
+          {resourceAction.file['file:preview'].on && (
+            <div
+              className={`${styles.grid} ${styles.grid__center} ${styles.gap_1} ${styles.preview}`}
+            >
+              {(() => {
+                const isPreview = resourceAction.file['file:preview'].on;
 
-              if (isLoading && isPreview) return <Spinner />;
-              if (!isPreview) return null;
+                if (isLoading && isPreview) return <Spinner />;
+                if (!isPreview) return null;
 
-              const [error, apiData] = fetcher.data;
+                const [error, apiData] = fetcher.data;
 
-              if (error) throw error;
+                if (error) throw error;
 
-              return (
-                <div>
-                  <div>
-                    <div>{apiData?.fileName}</div>
-                    <div>
-                      <Button type='button' size='xxs' onClick={closePreview}>
-                        X
-                      </Button>
-                    </div>
-                  </div>
-
-                  {apiData && (
-                    <div style={{ width: '500px' }}>
-                      <img src={apiData.url} alt={apiData.fileName} />
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
-          </div>
-        )}
-        {/* ACTION HEADER */}
-        <div>
-          <ActionHeader setFolders={setFolders} setFiles={setFiles} />
-        </div>
-
-        <table>
-          <SortHeader setFolders={setFolders} setFiles={setFiles} />
-
-          {/* BODY */}
-          <tbody>
-            {(() => {
-              if (folders.length === 0 && files.length === 0)
                 return (
-                  <tr>
-                    <td colSpan='4'>Empty folder</td>
-                  </tr>
+                  <>
+                    <div>
+                      <div>
+                        <Button
+                          type='button'
+                          size='xxs'
+                          customStyles={`${styles.modal__btn}`}
+                          testId='btn__preview__close'
+                          onClick={closePreview}
+                        >
+                          X
+                        </Button>
+                      </div>
+                    </div>
+
+                    {apiData && (
+                      <div className={`${styles.preview__image}`}>
+                        <img src={apiData.url} alt={apiData.fileName} />
+                      </div>
+                    )}
+                  </>
                 );
+              })()}
+            </div>
+          )}
+          {/* ACTION HEADER */}
+          <div className={`${styles.grid} ${styles.gap_1}`}>
+            <ActionHeader setFolders={setFolders} setFiles={setFiles} />
+          </div>
 
-              return (
-                <>
-                  {folders.length !== 0 &&
-                    folders.map((folder) => <FolderComponent key={folder.id} folder={folder} />)}
-                  {files.length !== 0 &&
-                    files.map((file) => (
-                      <FileComponent key={file.id} file={file} setActiveId={setActiveId} />
-                    ))}
-                </>
-              );
-            })()}
-          </tbody>
-        </table>
+          <div>
+            <table className={`${styles.table}`}>
+              <colgroup>
+                <col span='1' className={`${styles.table__col__name}`} />
+                <col span='1' />
+                <col span='1' />
+                <col span='1' />
+              </colgroup>
+              <SortHeader setFolders={setFolders} setFiles={setFiles} />
 
-        <div>
-          {files.length !== 0 &&
-            files.map((file) => (
-              <FileModal
-                key={`${file.name} ${file.id}`}
-                title='File detail'
-                buttonText=':'
-                modalId={file.id}
-                activeId={activeId}
-                setActiveId={setActiveId}
-                done={!resourceActionIsLoading('file:preview', file.id)}
-                on={resourceAction.file['file:preview'].on}
-                hasButton={false}
-                isTable
-              >
-                <div>
-                  {(() => {
-                    const validFields = {
-                      name: 'Name',
-                      size: 'Size',
-                      createdAt: 'Created',
-                      type: 'Type',
-                      extension: 'Extension',
-                    };
-
-                    const entries = Object.entries(file);
-
-                    return (
-                      <>
-                        {entries.map(([key, _]) => {
-                          if (!validFields[key]) return null;
-
-                          return (
-                            <div key={`${file.id} ${key}`}>
-                              <div>
-                                <span>{validFields[key]}</span>
-                                <div>
-                                  <span>{file[key]}</span>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </>
-                    );
-                  })()}
-                </div>
-
-                <div>
-                  <Button
-                    type='submit'
-                    size='xs'
-                    onClick={() => handleFileShare(file.id)}
-                    testId='btn__file__share'
-                  >
-                    Share
-                  </Button>
-                </div>
-
+              {/* BODY */}
+              <tbody>
                 {(() => {
-                  if (file.extension === 'epub') return null;
+                  if (folders.length === 0 && files.length === 0)
+                    return (
+                      <tr>
+                        <td colSpan='4' style={{ textAlign: 'center' }}>
+                          Empty folder
+                        </td>
+                      </tr>
+                    );
 
                   return (
-                    <div>
-                      <Button
-                        type='submit'
-                        size='xs'
-                        isLoading={resourceActionIsLoading('file:preview', file.id)}
-                        disabled={resourceActionIsLoading('file:preview', file.id)}
-                        onClick={handleFileAction(file.id, 'file:preview')}
-                        testId='btn__file__preview'
-                      >
-                        Preview
-                      </Button>
-                    </div>
+                    <>
+                      {folders.length !== 0 &&
+                        folders.map((folder) => (
+                          <FolderComponent key={folder.id} folder={folder} />
+                        ))}
+                      {files.length !== 0 &&
+                        files.map((file) => (
+                          <FileComponent key={file.id} file={file} setActiveId={setActiveId} />
+                        ))}
+                    </>
                   );
                 })()}
+              </tbody>
+            </table>
+          </div>
 
-                <div>
-                  <Button
-                    type='submit'
-                    size='xs'
-                    isLoading={resourceActionIsLoading('file:download')}
-                    disabled={resourceActionIsLoading('file:download')}
-                    onClick={handleFileAction(file.id, 'file:download')}
-                    testId='btn__file__download'
-                  >
-                    Download
-                  </Button>
-                </div>
+          {(() => {
+            if (files.length === 0) return null;
 
-                <div>
-                  <fetcher.Form action={`/files/${file.id}`} method='DELETE'>
-                    <Input type='hidden' name='intent' value='file:delete' autoComplete='off' />
+            return (
+              <>
+                {files.map((file) => {
+                  if (file.id !== activeId) return null;
 
-                    <Input type='hidden' name='fileId' value={String(file.id)} autoComplete='off' />
-                    <Button
-                      type='submit'
-                      size='xs'
-                      onClick={handleFileAction(file.id, 'file:delete', false)}
-                      isLoading={resourceActionIsLoading('file:delete', file.id, true)}
-                      disabled={resourceActionIsLoading('file:delete', file.id, true)}
-                      testId='btn__file__delete'
-                    >
-                      Delete
-                    </Button>
-                  </fetcher.Form>
-                </div>
-
-                {(() => {
-                  if (resourceAction.file['file:share'].id !== file.id) return null;
                   return (
-                    <div>
-                      <Modal
-                        title='Share Link'
-                        buttonText='Share Link'
-                        needButton={false}
-                        shouldOpen={resourceAction.file['file:share'].id === file.id}
-                        cleanup={() => {
-                          setFetcherData((prev) => ({ ...prev, data: null }));
-                          dispatch({
-                            field: 'file',
-                            type: 'file:share',
-                            value: {
-                              id: null,
-                              on: false,
-                            },
-                          });
-                        }}
+                    <div key={file.id} className={`${styles.file__info__modal__container}`}>
+                      <FileModal
+                        key={`${file.name} ${file.id}`}
+                        title='File detail'
+                        buttonText=':'
+                        modalCustomStyles={`${styles.file__info__modal}`}
+                        modalCloseButtonCustomStyles={`${styles.modal__btn}`}
+                        modalId={file.id}
+                        activeId={activeId}
+                        setActiveId={setActiveId}
+                        on={resourceAction.file['file:preview'].on}
+                        done={!resourceActionIsLoading('file:preview', file.id)}
+                        cleanUp={setCopyToClipBoard}
+                        hasButton={false}
+                        hasChildModal={resourceAction.file['file:share'].id === file.id}
+                        isTable
                       >
-                        <fetcher.Form
-                          action={`/files/${resourceAction.file['file:share'].id}`}
-                          method='POST'
-                        >
-                          <Input
-                            type='hidden'
-                            name='intent'
-                            value='file:share'
-                            autoComplete='off'
-                          />
-                          <Input
-                            type='hidden'
-                            name='fileId'
-                            value={String(resourceAction.file['file:share'].id)}
-                            autoComplete='off'
-                          />
-                          <fieldset>
-                            <legend>Genarate a link to share</legend>
-                            <div>
-                              <Label name='1 hour'>
-                                <Input
-                                  type='radio'
-                                  name='expiration'
-                                  value='1h'
-                                  autoComplete='off'
-                                  onChange={() => setRadioIndex(1)}
-                                  checked={radioIndex === 1}
-                                  isDisabled={fetcherData.data !== null}
-                                />
-                              </Label>
-                            </div>
+                        <div className={`${styles.margin_bottom_hundred_percent}`}>
+                          {(() => {
+                            const validFields = {
+                              name: 'Name',
+                              size: 'Size',
+                              createdAt: 'Created',
+                              type: 'Type',
+                              extension: 'Extension',
+                            };
 
-                            <div>
-                              <Label name='1 day'>
-                                <Input
-                                  type='radio'
-                                  name='expiration'
-                                  value='1d'
-                                  autoComplete='off'
-                                  onChange={() => setRadioIndex(2)}
-                                  checked={radioIndex === 2}
-                                  isDisabled={fetcherData.data !== null}
-                                />
-                              </Label>
-                            </div>
+                            const entries = Object.entries(file);
 
-                            <div>
-                              <Label name='4 day'>
-                                <Input
-                                  type='radio'
-                                  name='expiration'
-                                  value='4d'
-                                  autoComplete='off'
-                                  onChange={() => setRadioIndex(3)}
-                                  checked={radioIndex === 3}
-                                  isDisabled={fetcherData.data !== null}
-                                />
-                              </Label>
-                            </div>
+                            return (
+                              <>
+                                {entries.map(([key, _]) => {
+                                  if (!validFields[key]) return null;
 
-                            <div>
-                              <Label name='1 week'>
-                                <Input
-                                  type='radio'
-                                  name='expiration'
-                                  value='7d'
-                                  autoComplete='off'
-                                  onChange={() => setRadioIndex(4)}
-                                  checked={radioIndex === 4}
-                                  isDisabled={fetcherData.data !== null}
-                                />
-                              </Label>
-                            </div>
-                          </fieldset>
+                                  return (
+                                    <div
+                                      key={`${file.id} ${key}`}
+                                      className={styles.margin_bottom_8px}
+                                    >
+                                      <div>
+                                        {(() => {
+                                          if (key === 'size') {
+                                            return (
+                                              <>
+                                                <div className={`${styles.bold}`}>
+                                                  {validFields[key]}
+                                                </div>
+                                                <div>{formatBytes(file[key])}</div>
+                                              </>
+                                            );
+                                          }
+
+                                          if (key === 'createdAt') {
+                                            return (
+                                              <>
+                                                <div className={`${styles.bold}`}>
+                                                  {validFields[key]}
+                                                </div>
+                                                <div>{dayjs().calendar(dayjs(file[key]))}</div>
+                                              </>
+                                            );
+                                          }
+                                          return (
+                                            <>
+                                              <div className={`${styles.bold}`}>
+                                                {validFields[key]}
+                                              </div>
+                                              <div>{file[key]}</div>
+                                            </>
+                                          );
+                                        })()}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </>
+                            );
+                          })()}
+                        </div>
+
+                        <div className={`${styles.file__info__modal__middle}`}>
+                          <div>
+                            <Button
+                              type='submit'
+                              size='xs'
+                              onClick={() => handleFileShare(file.id)}
+                              testId='btn__file__share'
+                              customStyles={`${styles.action__btn}`}
+                            >
+                              Share
+                            </Button>
+                          </div>
+
+                          {(() => {
+                            if (file.extension === 'epub') return null;
+
+                            return (
+                              <div>
+                                <Button
+                                  type='submit'
+                                  size='xs'
+                                  isLoading={resourceActionIsLoading('file:preview', file.id)}
+                                  disabled={resourceActionIsLoading('file:preview', file.id)}
+                                  onClick={handleFileAction(file.id, 'file:preview')}
+                                  testId='btn__file__preview'
+                                  customStyles={`${styles.action__btn}`}
+                                >
+                                  Preview
+                                </Button>
+                              </div>
+                            );
+                          })()}
 
                           <div>
-                            {(() => {
-                              if (!fetcherData.data) {
-                                return (
-                                  <Button
-                                    type='submit'
-                                    size='lg'
-                                    testId='btn__share__file'
-                                    onClick={() =>
-                                      dispatch({
-                                        field: 'file',
-                                        type: 'file:share',
-                                        value: {
-                                          id: resourceAction.file['file:share'].id,
-                                          on: true,
-                                        },
-                                      })
-                                    }
-                                    isLoading={resourceActionIsLoading(
-                                      'folder:file',
-                                      resourceAction.file['file:share'].id,
-                                    )}
-                                    disabled={resourceActionIsLoading(
-                                      'folder:file',
-                                      resourceAction.file['file:share'].id,
-                                    )}
-                                  >
-                                    Share
-                                  </Button>
-                                );
-                              }
-                              return (
-                                <>
-                                  <Input
-                                    type='text'
-                                    name='generated_link'
-                                    value={fetcherData.data.url}
-                                    autoComplete='off'
-                                  />
-                                  <Button
-                                    type='button'
-                                    size='xs'
-                                    testId='btn__copy__link'
-                                    onClick={handleCopyToClipboard}
-                                  >
-                                    {copyToClipBoard ? 'Link copied to clipboard' : 'Copy Link'}
-                                  </Button>
-                                </>
-                              );
-                            })()}
+                            <Button
+                              type='submit'
+                              size='xs'
+                              isLoading={resourceActionIsLoading('file:download')}
+                              disabled={resourceActionIsLoading('file:download')}
+                              onClick={handleFileAction(file.id, 'file:download')}
+                              testId='btn__file__download'
+                              customStyles={`${styles.action__btn}`}
+                            >
+                              Download
+                            </Button>
                           </div>
-                        </fetcher.Form>
-                      </Modal>
+
+                          <div>
+                            <fetcher.Form action={`/files/${file.id}`} method='DELETE'>
+                              <Input
+                                type='hidden'
+                                name='intent'
+                                value='file:delete'
+                                autoComplete='off'
+                              />
+
+                              <Input
+                                type='hidden'
+                                name='fileId'
+                                value={String(file.id)}
+                                autoComplete='off'
+                              />
+                              <Button
+                                type='submit'
+                                size='xs'
+                                onClick={handleFileAction(file.id, 'file:delete', false)}
+                                isLoading={resourceActionIsLoading('file:delete', file.id, true)}
+                                disabled={resourceActionIsLoading('file:delete', file.id, true)}
+                                testId='btn__file__delete'
+                                customStyles={`${styles.del__btn}`}
+                              >
+                                Delete
+                              </Button>
+                            </fetcher.Form>
+                          </div>
+                        </div>
+                      </FileModal>
                     </div>
                   );
-                })()}
-              </FileModal>
-            ))}
-        </div>
+                })}
+              </>
+            );
+          })()}
 
-        {/* PAGINATION */}
+          {files.map((file) => (
+            <Fragment key={file.id}>
+              {(() => {
+                if (resourceAction.file['file:share'].id !== file.id) return null;
+                return (
+                  <Modal
+                    title='Share Link'
+                    buttonText='Share Link'
+                    needButton={false}
+                    shouldOpen={resourceAction.file['file:share'].id === file.id}
+                    cleanup={() => {
+                      setFetcherData((prev) => ({ ...prev, data: null }));
+                      dispatch({
+                        field: 'file',
+                        type: 'file:share',
+                        value: {
+                          id: null,
+                          on: false,
+                        },
+                      });
+                    }}
+                    dialogContainerCustomStyles={`${styles.share__modal__container} ${styles.pos_absolute}`}
+                    dialogCustomStyles={`${styles.dialog}  ${styles.width_50per}`}
+                    dialogTopCustomStyles={`${styles.flex} ${styles.space_between}`}
+                    modalButtonContainerCustomStyles={`${styles.modal__btn__container}`}
+                    modalCloseButtonCustomStyles={`${styles.modal__btn}`}
+                  >
+                    <fetcher.Form
+                      action={`/files/${resourceAction.file['file:share'].id}`}
+                      method='POST'
+                      className={`${styles.share__form}`}
+                    >
+                      <Input type='hidden' name='intent' value='file:share' autoComplete='off' />
+                      <Input
+                        type='hidden'
+                        name='fileId'
+                        value={String(resourceAction.file['file:share'].id)}
+                        autoComplete='off'
+                      />
+                      <fieldset>
+                        <legend>Genarate a link to share</legend>
+                        <div>
+                          <Label name='1 hour'>
+                            <Input
+                              type='radio'
+                              name='expiration'
+                              value='1h'
+                              autoComplete='off'
+                              onChange={() => setRadioIndex(1)}
+                              checked={radioIndex === 1}
+                              isDisabled={fetcherData.data !== null}
+                            />
+                          </Label>
+                        </div>
+
+                        <div>
+                          <Label name='1 day'>
+                            <Input
+                              type='radio'
+                              name='expiration'
+                              value='1d'
+                              autoComplete='off'
+                              onChange={() => setRadioIndex(2)}
+                              checked={radioIndex === 2}
+                              isDisabled={fetcherData.data !== null}
+                            />
+                          </Label>
+                        </div>
+
+                        <div>
+                          <Label name='4 day'>
+                            <Input
+                              type='radio'
+                              name='expiration'
+                              value='4d'
+                              autoComplete='off'
+                              onChange={() => setRadioIndex(3)}
+                              checked={radioIndex === 3}
+                              isDisabled={fetcherData.data !== null}
+                            />
+                          </Label>
+                        </div>
+
+                        <div>
+                          <Label name='1 week'>
+                            <Input
+                              type='radio'
+                              name='expiration'
+                              value='7d'
+                              autoComplete='off'
+                              onChange={() => setRadioIndex(4)}
+                              checked={radioIndex === 4}
+                              isDisabled={fetcherData.data !== null}
+                            />
+                          </Label>
+                        </div>
+                      </fieldset>
+
+                      <div className={`${styles.grid} ${styles.gap_1}`}>
+                        {(() => {
+                          if (!fetcherData.data) {
+                            return (
+                              <Button
+                                type='submit'
+                                size='m'
+                                customStyles={`${styles.action__btn}`}
+                                testId='btn__share__file'
+                                onClick={() =>
+                                  dispatch({
+                                    field: 'file',
+                                    type: 'file:share',
+                                    value: {
+                                      id: resourceAction.file['file:share'].id,
+                                      on: true,
+                                    },
+                                  })
+                                }
+                                isLoading={resourceActionIsLoading(
+                                  'folder:file',
+                                  resourceAction.file['file:share'].id,
+                                )}
+                                disabled={resourceActionIsLoading(
+                                  'folder:file',
+                                  resourceAction.file['file:share'].id,
+                                )}
+                              >
+                                Share
+                              </Button>
+                            );
+                          }
+                          return (
+                            <>
+                              <Input
+                                type='text'
+                                name='generated_link'
+                                value={fetcherData.data.url}
+                                autoComplete='off'
+                              />
+                              <Button
+                                type='button'
+                                size='m'
+                                customStyles={`${styles.action__btn}`}
+                                testId='btn__copy__link'
+                                onClick={handleCopyToClipboard}
+                              >
+                                {copyToClipBoard ? 'Link copied to clipboard' : 'Copy Link'}
+                              </Button>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    </fetcher.Form>
+                  </Modal>
+                );
+              })()}
+            </Fragment>
+          ))}
+        </div>
       </Await>
     </Suspense>
   );

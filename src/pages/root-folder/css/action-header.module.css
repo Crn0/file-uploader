@@ -1,3 +1,112 @@
+.link {
+  color: var(--path-link-color);
+}
+
+.dialog__container {
+  position: absolute;
+  left: 25%;
+  top: 300%;
+  width: 100%;
+}
+
+.dialog {
+  display: grid;
+  gap: 1rem;
+  width: 50%;
+  position: relative;
+}
+
+.modal__btn__container {
+  position: absolute;
+  top: 0%;
+  left: 93%;
+}
+
+.modal__btn {
+  background: none;
+}
+
+.modal__btn__open {
+  color: var(--white);
+}
+
+.form__btn {
+  color: var(--modal-form-btn-color);
+  border: 1px solid var(--modal-form-btn-border-color);
+  box-shadow: var(--modal-form-btn-active-shadow);
+  background-color: var(--btn-bg-color);
+}
+
+.modal__btn__open:hover,
+.modal__btn:hover {
+  background-color: var(--dark);
+}
+
+.form__btn:hover {
+  color: var(--modal-form-btn-hover-color);
+  border: 1px solid var(--modal-form-btn-border-color);
+  background-color: var(--modal-form-btn-hover-bg);
+  box-shadow: var(--modal-form-btn-active-shadow);
+}
+
+.modal__btn:hover {
+  color: var(--white);
+  opacity: 0.5;
+}
+
+.modal__btn {
+  position: absolute;
+}
+
 .file {
   display: none;
+}
+
+.flex {
+  display: flex;
+}
+
+.space_between {
+  justify-content: space-between;
+}
+
+.grid {
+  display: grid;
+}
+
+.grid_center {
+  place-content: center;
+  place-items: center;
+}
+
+.gap_1 {
+  gap: 1rem;
+}
+
+.gap_2 {
+  gap: 2rem;
+}
+
+.pos_relative {
+  position: relative;
+}
+
+.pos_absolute {
+  position: absolute;
+}
+
+.background_none {
+  background: none;
+}
+
+@media (min-width: 1000px) {
+  .dialog__container {
+    position: absolute;
+    left: 40%;
+    top: 300%;
+    width: 100%;
+  }
+  .dialog {
+    width: 30%;
+  }
 }

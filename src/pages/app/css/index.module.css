@@ -1,0 +1,6 @@
+.app {
+  display: grid;
+  min-height: 100dvh;
+  max-width: 100dvw;
+  grid-template-rows: 0.3fr 2fr;
+}
