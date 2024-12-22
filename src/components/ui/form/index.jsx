@@ -17,7 +17,7 @@ export default function Form({
       action={action}
       method={method}
       encType={encType}
-      className={`${style.form} ${customStyles}}`}
+      className={`${style.form} ${customStyles}`}
       replace
     >
       {children}

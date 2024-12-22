@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { useAsyncValue, useFetcher } from 'react-router-dom';
 import Button from '../../components/ui/button';
-import styles from './css/action-header.module.css';
+import styles from './css/sort-header.module.css';
 
 export default function SortHeader({ setFolders, setFiles }) {
   const [error, asyncData] = useAsyncValue();

@@ -1,0 +1,8 @@
+.modal__header {
+  display: grid;
+  position: relative;
+}
+
+.btn__container {
+  margin-left: 90%;
+}

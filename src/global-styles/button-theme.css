@@ -1,4 +1,6 @@
 :root {
+  --btn-bg-color: var(--white);
+
   --auth-btn-color: #0d6efd;
   --auth-btn-border-color: #0d6efd;
   --auth-btn-hover-color: #fff;
@@ -11,4 +13,25 @@
   --auth-btn-disabled-color: #0d6efd;
   --auth-btn-disabled-bg: transparent;
   --auth-btn-disabled-border-color: #0d6efd;
+
+  --modal-form-btn-color: #0d6efd;
+  --modal-form-btn-border-color: #0d6efd;
+  --modal-form-btn-hover-color: #fff;
+  --modal-form-btn-hover-bg: #0d6efd;
+  --modal-form-btn-hover-border-color: #0d6efd;
+  --modal-form-btn-active-color: #fff;
+  --modal-form-btn-active-bg: #0d6efd;
+  --modal-form-btn-active-border-color: #0d6efd;
+  --modal-form-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --modal-form-btn-disabled-color: #0d6efd;
+  --modal-form-btn-disabled-bg: transparent;
+  --modal-form-btn-disabled-border-color: #0d6efd;
+
+  --del-btn-color: #dc143c;
+  --del-btn-border-color: #dc143c;
+
+  --del-btn-hover-color: #fff;
+  --del-btn-hover-color: #fff;
+  --del-btn-hover-bg: #dc143c;
+  --del-btn-hover-border-color: #dc143c;
 }
