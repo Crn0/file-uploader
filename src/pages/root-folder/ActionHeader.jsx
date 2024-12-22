@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 import { useAsyncValue } from 'react-router-dom';
 import Modal from '../../components/ui/modal';
 import ResourceForm from './ResourceForm';
-import styles from './css/action-header.module.css';
 import Link from '../../components/ui/link';
+import styles from './css/action-header.module.css';
 
 export default function ActionHeader({ setFolders, setFiles }) {
   const [error, asyncData] = useAsyncValue();
@@ -26,19 +26,30 @@ export default function ActionHeader({ setFolders, setFiles }) {
       <div>
         {paths?.map((path) => (
           <h1 key={path.id}>
-            <Link to='/'>{path.name}</Link>
+            <Link to='/' customStyles={`${styles.link}`}>
+              {path.name}
+            </Link>
           </h1>
         ))}
       </div>
 
-      <div>
-        <Modal title='New Folder' buttonText='New Folder'>
+      <div className={` ${styles.pos_relative} ${styles.flex} ${styles.gap_1}`}>
+        <Modal
+          title='New Folder'
+          buttonText='New Folder'
+          buttonCustomStyles={`${styles.background_none} ${styles.modal__btn__open}`}
+          dialogContainerCustomStyles={`${styles.dialog__container}`}
+          dialogCustomStyles={`${styles.dialog}`}
+          dialogTopCustomStyles={`${styles.flex} ${styles.space_between}`}
+          modalButtonContainerCustomStyles={`${styles.modal__btn__container}`}
+          modalCloseButtonCustomStyles={`${styles.modal__btn}`}
+        >
           <ResourceForm
             action='/root-folder'
             method='POST'
             intent='create:folder'
             setState={setFolders}
-            labelName='Name:'
+            inputPlaceHolder='Folder Name'
             folderId={String(folder.id)}
             inputFieldId={`${styles.folder__name__field}`}
             buttonFieldId={`${styles.folder__button__field}`}
@@ -46,10 +57,21 @@ export default function ActionHeader({ setFolders, setFiles }) {
             buttonSize='xs'
             buttonText='Create'
             type='folder'
+            formCustomStyles={`${styles.grid} ${styles.grid_center} ${styles.gap_2}`}
+            buttonCustomStyles={`${styles.form__btn}`}
           />
         </Modal>
 
-        <Modal title='New File' buttonText='New File'>
+        <Modal
+          title='New File'
+          buttonText='New File'
+          buttonCustomStyles={`${styles.background_none} ${styles.modal__btn__open}`}
+          dialogContainerCustomStyles={`${styles.dialog__container}`}
+          dialogCustomStyles={`${styles.dialog}`}
+          dialogTopCustomStyles={`${styles.flex} ${styles.space_between}`}
+          modalButtonContainerCustomStyles={`${styles.modal__btn__container}`}
+          modalCloseButtonCustomStyles={`${styles.modal__btn}`}
+        >
           <ResourceForm
             action='/root-folder'
             method='POST'
@@ -63,6 +85,8 @@ export default function ActionHeader({ setFolders, setFiles }) {
             buttonSize='xs'
             buttonText='Upload'
             type='file'
+            formCustomStyles={`${styles.flex} ${styles.space_between}`}
+            buttonCustomStyles={`${styles.form__btn}`}
           />
         </Modal>
       </div>

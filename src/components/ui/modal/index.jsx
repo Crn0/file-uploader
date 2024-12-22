@@ -12,6 +12,14 @@ export default function Modal({
   cleanup = () => {},
   shouldOpen = false,
   needButton = true,
+  hasChild = false,
+  buttonCustomStyles = '',
+  dialogCustomStyles = '',
+  dialogContainerCustomStyles = '',
+  dialogTopCustomStyles = '',
+  dialogBottomCustomStyles = '',
+  modalButtonContainerCustomStyles = '',
+  modalCloseButtonCustomStyles = '',
 }) {
   const ref = useRef();
   const [isModalOpen, setModalOpen] = useState(shouldOpen);
@@ -22,33 +30,44 @@ export default function Modal({
     cleanup();
   };
 
-  useOnClickOutside(ref, close, on, done);
-
+  useOnClickOutside(ref, close, on, done, hasChild);
   return (
     <>
       {needButton && (
         <div>
-          <Button type='button' size='lg' onClick={open} testId='btn__open__modal'>
+          <Button
+            type='button'
+            size='lg'
+            onClick={open}
+            testId='btn__open__modal'
+            customStyles={buttonCustomStyles}
+          >
             {buttonText}
           </Button>
         </div>
       )}
       {isModalOpen && (
-        <div>
-          <dialog ref={ref} open>
-            <div>
+        <div className={`${dialogContainerCustomStyles}`}>
+          <dialog className={`${dialogCustomStyles}`} ref={ref} open>
+            <div className={`${dialogTopCustomStyles}`}>
               <div>
                 <h3>{title}</h3>
               </div>
 
-              <div>
-                <Button type='button' size='xxs' onClick={close} testId='btn__close__modal'>
+              <div className={`${modalButtonContainerCustomStyles}`}>
+                <Button
+                  type='button'
+                  size='xxs'
+                  onClick={close}
+                  testId='btn__close__modal'
+                  customStyles={`${modalCloseButtonCustomStyles}`}
+                >
                   X
                 </Button>
               </div>
             </div>
 
-            <div>{children}</div>
+            <div className={`${dialogBottomCustomStyles}`}>{children}</div>
           </dialog>
         </div>
       )}
@@ -66,4 +85,12 @@ Modal.propTypes = {
   cleanup: PropTypes.func,
   shouldOpen: PropTypes.bool,
   needButton: PropTypes.bool,
+  hasChild: PropTypes.bool,
+  buttonCustomStyles: PropTypes.string,
+  dialogCustomStyles: PropTypes.string,
+  dialogContainerCustomStyles: PropTypes.string,
+  dialogTopCustomStyles: PropTypes.string,
+  dialogBottomCustomStyles: PropTypes.string,
+  modalButtonContainerCustomStyles: PropTypes.string,
+  modalCloseButtonCustomStyles: PropTypes.string,
 };

@@ -6,6 +6,7 @@ import './global-styles/index.css';
 import './global-styles/reset.css';
 import './global-styles/theme.css';
 import './global-styles/button-theme.css';
+import './global-styles/link-theme.css';
 
 const router = createBrowserRouter(routes);
 

@@ -1,0 +1,26 @@
+:root {
+  --header-btn-color: var(--white);
+}
+
+.th {
+  border-top: 1px solid rgb(190, 190, 190);
+  padding: 10px 20px;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex__center {
+  justify-content: center;
+}
+
+.gap_1 {
+  gap: 1rem;
+}
+
+.btn {
+  background: none;
+  color: var(--header-btn-color);
+  width: 100%;
+}
