@@ -1,0 +1,28 @@
+.grid {
+  display: grid;
+}
+
+.grid_center {
+  place-content: center;
+  place-items: center;
+}
+
+.gap_1rem {
+  gap: 1rem;
+}
+
+.pad_4rem {
+  padding: 4rem;
+}
+
+.border_white {
+  border: 1px solid var(--white);
+}
+
+.margin_top_5rem {
+  margin-top: 5rem;
+}
+
+.link_redirect {
+  color: #0d6efd;
+}
