@@ -21,6 +21,9 @@ export default function ResourceForm({
   buttonText,
   testId,
   type,
+  formCustomStyles = '',
+  inputPlaceHolder = '',
+  buttonCustomStyles = '',
 }) {
   const fetcher = useFetcher();
   const fileRef = useRef();
@@ -44,12 +47,18 @@ export default function ResourceForm({
 
   if (type === 'folder')
     return (
-      <fetcher.Form action={action} method={method}>
+      <fetcher.Form action={action} method={method} className={formCustomStyles}>
         <Fieldset id={inputFieldId}>
           <Input type='hidden' name='intent' value={intent} autoComplete='off' />
           <Input type='hidden' name='folderId' value={folderId} autoComplete='off' />
-          <Label name={labelName}>
-            <Input type='text' name='name' autoComplete='off' uncontrolled />
+          <Label>
+            <Input
+              type='text'
+              name='name'
+              autoComplete='off'
+              placeholder={inputPlaceHolder}
+              uncontrolled
+            />
           </Label>
         </Fieldset>
         <Fieldset id={buttonFieldId}>
@@ -62,13 +71,19 @@ export default function ResourceForm({
                   isLoading={isLoading}
                   disabled={isLoading}
                   testId={testId}
+                  customStyles={`${buttonCustomStyles}`}
                 >
                   {buttonText}
                 </Button>
               );
 
             return (
-              <Button type='submit' size={buttonSize} testId={testId}>
+              <Button
+                type='submit'
+                size={buttonSize}
+                testId={testId}
+                customStyles={`${buttonCustomStyles}`}
+              >
                 {buttonText}
               </Button>
             );
@@ -78,7 +93,12 @@ export default function ResourceForm({
     );
 
   return (
-    <fetcher.Form action={action} method={method} encType='multipart/form-data'>
+    <fetcher.Form
+      action={action}
+      method={method}
+      encType='multipart/form-data'
+      className={formCustomStyles}
+    >
       <Fieldset id={inputFieldId}>
         <Input type='hidden' name='intent' value={intent} autoComplete='off' />
         <Input type='hidden' name='folderId' value={folderId} autoComplete='off' />
@@ -108,13 +128,19 @@ export default function ResourceForm({
                 isLoading={isLoading}
                 disabled={isLoading}
                 testId={testId}
+                customStyles={`${buttonCustomStyles}`}
               >
                 {buttonText}
               </Button>
             );
 
           return (
-            <Button type='submit' size={buttonSize} testId={testId}>
+            <Button
+              type='submit'
+              size={buttonSize}
+              testId={testId}
+              customStyles={`${buttonCustomStyles}`}
+            >
               {buttonText}
             </Button>
           );
@@ -129,7 +155,7 @@ ResourceForm.propTypes = {
   method: PropTypes.string.isRequired,
   intent: PropTypes.string.isRequired,
   setState: PropTypes.func.isRequired,
-  labelName: PropTypes.string.isRequired,
+  labelName: PropTypes.string,
   inputFieldId: PropTypes.string.isRequired,
   folderId: PropTypes.string.isRequired,
   buttonFieldId: PropTypes.string.isRequired,
@@ -137,4 +163,7 @@ ResourceForm.propTypes = {
   buttonSize: PropTypes.string.isRequired,
   buttonText: PropTypes.string.isRequired,
   type: PropTypes.oneOf(['folder', 'file']).isRequired,
+  formCustomStyles: PropTypes.string,
+  inputPlaceHolder: PropTypes.string,
+  buttonCustomStyles: PropTypes.string,
 };
