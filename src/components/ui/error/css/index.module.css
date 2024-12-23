@@ -1,0 +1,19 @@
+.h2 {
+  font-size: 1.5em;
+}
+
+.grid {
+  display: grid;
+}
+
+.content_center {
+  place-content: center;
+}
+
+.gap_1rem {
+  gap: 1rem;
+}
+
+.margin_top_25rem {
+  margin-top: 25rem;
+}
