@@ -1,14 +1,34 @@
 import PropTypes from 'prop-types';
+import { useState } from 'react';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import helpers from '../../helpers';
+import styles from './css/file.module.css';
+
+dayjs.extend(relativeTime);
 
 export default function FileComponent({ file, setActiveId }) {
   const open = () => setActiveId(file.id);
+  const [currentId, setcurrentId] = useState(null);
+
+  const onMouseOver = () => setcurrentId(file.id);
+  const onMouseLeave = () => setcurrentId(null);
 
   return (
-    <tr onClick={open}>
-      <td>{file.name}</td>
-      <td>{file.type}</td>
-      <td>{file.size}</td>
-      <td>{file.createdAt}</td>
+    <tr
+      onClick={open}
+      className={`${currentId === file.id ? styles.onHover : ''}`}
+      onMouseOver={onMouseOver}
+      onMouseLeave={onMouseLeave}
+      onFocus={onMouseOver}
+    >
+      <td className={`${styles.td}`}>
+        <div className={`${styles.td__name}`}>{file.name}</div>
+      </td>
+      <td className={`${styles.td}`}>{file.type}</td>
+      <td className={`${styles.td}`}>{helpers.formatBytes(file.size)}</td>
+
+      <td className={`${styles.td}`}>{dayjs(file.createdAt).fromNow()}</td>
     </tr>
   );
 }
