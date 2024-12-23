@@ -1,3 +1,4 @@
+import Proptypes from 'prop-types';
 import { useContext } from 'react';
 import { useFetcher } from 'react-router-dom';
 import AuthProvider from '../../../provider/auth.provider';
@@ -7,7 +8,7 @@ import Button from '../button';
 import Link from '../link';
 import style from './css/index.module.css';
 
-export default function NavBar({ customStyles }) {
+export default function NavBar({ customStyles = '' }) {
   const user = useContext(UserContext);
   const fetcher = useFetcher({ key: 'logout' });
 
@@ -27,7 +28,7 @@ export default function NavBar({ customStyles }) {
             <div className={`${style.center}  ${customStyles}`}>
               {['Register', 'Login'].map((url) => (
                 <div key={url} className={`${style.center}`}>
-                  <Link to={`${url}`} customStyles={`${style.link} ${style['link--dark']}`}>
+                  <Link to={`/${url}`} customStyles={`${style.link} ${style['link--dark']}`}>
                     {url}
                   </Link>
                 </div>
@@ -57,3 +58,7 @@ export default function NavBar({ customStyles }) {
     </nav>
   );
 }
+
+NavBar.propTypes = {
+  customStyles: Proptypes.string,
+};
