@@ -26,3 +26,13 @@
 .link_redirect {
   color: #0d6efd;
 }
+
+.pos_relative {
+  position: relative;
+}
+
+.spinner {
+  position: absolute;
+  left: 50%;
+  top: 450px;
+}
