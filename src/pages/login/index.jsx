@@ -83,7 +83,13 @@ export default function Login() {
   const loaderData = useLoaderData();
 
   return (
-    <Suspense fallback={<Spinner />}>
+    <Suspense
+      fallback={
+        <div className={`${styles.pos_relative}`}>
+          <Spinner customStyle={`${styles.spinner}`} />
+        </div>
+      }
+    >
       <Await resolve={loaderData.data}>
         <Wrapper />
       </Await>
