@@ -4,11 +4,11 @@ import { useActionData, useAsyncValue, useNavigation } from 'react-router-dom';
 import Modal from '../../components/ui/modal';
 import ResourceForm from './ResourceForm';
 import Form from '../../components/ui/form';
-import styles from './css/action-header.module.css';
 import Link from '../../components/ui/link';
 import Button from '../../components/ui/button';
 import Input from '../../components/ui/form/Input';
 import Label from '../../components/ui/form/Label';
+import styles from './css/action-header.module.css';
 
 export default function ActionHeader({ setFolders, setFiles, resourceAction, dispatch }) {
   const [
@@ -38,6 +38,17 @@ export default function ActionHeader({ setFolders, setFiles, resourceAction, dis
     setCopyToClipBoard(true);
   };
 
+  const onSubmit = () => {
+    dispatch({
+      field: 'folder',
+      type: 'folder:delete',
+      value: {
+        id: folder.id,
+        on: true,
+      },
+    });
+  };
+
   useEffect(() => {
     if (error) throw error;
 
@@ -53,46 +64,51 @@ export default function ActionHeader({ setFolders, setFiles, resourceAction, dis
 
   return (
     <>
-      <div>
+      <div className={`${styles.flex} ${styles.gap_1} ${styles.flex__wrap}`}>
         {paths?.map((path, index) => {
           if (index !== paths.length - 1) {
             return (
-              <div key={path.id}>
+              <div key={path.id} className={`${styles.flex} ${styles.gap_1} ${styles.flex__wrap}`}>
                 <div>
-                  <div>
-                    <Link to='/'>
-                      <span>{path.name}</span>
-                    </Link>
-                  </div>
+                  <Link to={`/folders/${path.id}`} customStyles={`${styles.link}`}>
+                    {path.name}
+                  </Link>
+                </div>
 
-                  <div>
-                    <span> {'>'} </span>
-                  </div>
+                <div>
+                  <span className={`${styles.font_2em}`}> {'>'} </span>
                 </div>
               </div>
             );
           }
 
           return (
-            <div key={path.id}>
-              <div>
-                <Link key={path.id} to='/'>
-                  {path.name}
-                </Link>
-              </div>
+            <div key={path.id} className={`${styles.flex} ${styles.gap_1} ${styles.flex__wrap}`}>
+              <Link key={path.id} to={`/folders/${path.id}`} customStyles={`${styles.link}`}>
+                {path.name}
+              </Link>
             </div>
           );
         })}
       </div>
 
-      <div>
-        <Modal title='New Folder' buttonText='New Folder'>
+      <div className={` ${styles.pos_relative} ${styles.flex} ${styles.gap_1}`}>
+        <Modal
+          title='New Folder'
+          buttonText='New Folder'
+          buttonCustomStyles={`${styles.background_none} ${styles.modal__btn__open}`}
+          dialogContainerCustomStyles={`${styles.dialog__container}`}
+          dialogCustomStyles={`${styles.dialog}`}
+          dialogTopCustomStyles={`${styles.flex} ${styles.space_between}`}
+          modalButtonContainerCustomStyles={`${styles.modal__btn__container}`}
+          modalCloseButtonCustomStyles={`${styles.modal__btn}`}
+        >
           <ResourceForm
             action='/root-folder'
             method='POST'
             intent='create:folder'
             setState={setFolders}
-            labelName='Name:'
+            inputPlaceHolder='Folder Name'
             folderId={String(folder.id)}
             inputFieldId={`${styles.folder__name__field}`}
             buttonFieldId={`${styles.folder__button__field}`}
@@ -100,10 +116,21 @@ export default function ActionHeader({ setFolders, setFiles, resourceAction, dis
             buttonSize='xs'
             buttonText='Create'
             type='folder'
+            formCustomStyles={`${styles.grid} ${styles.grid_center} ${styles.gap_2}`}
+            buttonCustomStyles={`${styles.form__btn}`}
           />
         </Modal>
 
-        <Modal title='New File' buttonText='New File'>
+        <Modal
+          title='New File'
+          buttonText='New File'
+          buttonCustomStyles={`${styles.background_none} ${styles.modal__btn__open}`}
+          dialogContainerCustomStyles={`${styles.dialog__container}`}
+          dialogCustomStyles={`${styles.dialog}`}
+          dialogTopCustomStyles={`${styles.flex} ${styles.space_between}`}
+          modalButtonContainerCustomStyles={`${styles.modal__btn__container}`}
+          modalCloseButtonCustomStyles={`${styles.modal__btn}`}
+        >
           <ResourceForm
             action='/root-folder'
             method='POST'
@@ -117,6 +144,8 @@ export default function ActionHeader({ setFolders, setFiles, resourceAction, dis
             buttonSize='xs'
             buttonText='Upload'
             type='file'
+            formCustomStyles={`${styles.flex} ${styles.space_between}`}
+            buttonCustomStyles={`${styles.form__btn}`}
           />
         </Modal>
 
@@ -128,6 +157,12 @@ export default function ActionHeader({ setFolders, setFiles, resourceAction, dis
               <Modal
                 title='Share'
                 buttonText='Share'
+                buttonCustomStyles={`${styles.background_none} ${styles.modal__btn__open}`}
+                dialogContainerCustomStyles={`${styles.dialog__container}`}
+                dialogCustomStyles={`${styles.dialog}`}
+                dialogTopCustomStyles={`${styles.flex} ${styles.space_between}`}
+                modalButtonContainerCustomStyles={`${styles.modal__btn__container}`}
+                modalCloseButtonCustomStyles={`${styles.modal__btn}`}
                 cleanup={() => {
                   setActionData(null);
                   setCopyToClipBoard(false);
@@ -142,7 +177,11 @@ export default function ActionHeader({ setFolders, setFiles, resourceAction, dis
                 }}
               >
                 <div>
-                  <Form action={`/folders/${folder.id}`} method='POST'>
+                  <Form
+                    action={`/folders/${folder.id}`}
+                    method='POST'
+                    customStyles={`${styles.share__form}`}
+                  >
                     <Input type='hidden' name='intent' value='folder:share' autoComplete='off' />
                     <Input
                       type='hidden'
@@ -205,13 +244,14 @@ export default function ActionHeader({ setFolders, setFiles, resourceAction, dis
                       </div>
                     </fieldset>
 
-                    <div>
+                    <div className={`${styles.grid} ${styles.gap_1}`}>
                       {(() => {
                         if (!actionData) {
                           return (
                             <Button
                               type='submit'
-                              size='lg'
+                              size='xs'
+                              customStyles={`${styles.form__btn}`}
                               testId='btn__share__folder'
                               onClick={() =>
                                 dispatch({
@@ -241,6 +281,7 @@ export default function ActionHeader({ setFolders, setFiles, resourceAction, dis
                             <Button
                               type='button'
                               size='xs'
+                              customStyles={`${styles.form__btn}`}
                               testId='btn__copy__link'
                               onClick={handleCopyToClipboard}
                             >
@@ -255,7 +296,7 @@ export default function ActionHeader({ setFolders, setFiles, resourceAction, dis
               </Modal>
 
               <div>
-                <Form action={`/folders/${folder.id}`} method='POST'>
+                <Form action={`/folders/${folder.id}`} method='POST' onSubmit={onSubmit}>
                   <Input type='hidden' name='intent' value='folder:delete' autoComplete='off' />
                   <Input type='hidden' name='folderId' value={`${folder.id}`} autoComplete='off' />
                   <Input
@@ -267,9 +308,10 @@ export default function ActionHeader({ setFolders, setFiles, resourceAction, dis
                   <Button
                     type='submit'
                     size='lg'
+                    customStyles={`${styles.background_none}  ${styles.del__btn}`}
                     testId='btn__delete__folder'
-                    isLoading={isSubmitting}
-                    disabled={isSubmitting}
+                    isLoading={resourceAction.folder['folder:delete'].on && isSubmitting}
+                    disabled={resourceAction.folder['folder:delete'].on && isSubmitting}
                   >
                     Delete
                   </Button>
