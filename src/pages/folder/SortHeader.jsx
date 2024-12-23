@@ -1,8 +1,7 @@
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { useAsyncValue, useFetcher } from 'react-router-dom';
-import { FaCaretUp } from 'react-icons/fa';
-import { FaCaretDown } from 'react-icons/fa';
+import { FaCaretUp, FaCaretDown } from 'react-icons/fa';
 import Button from '../../components/ui/button';
 import styles from './css/sort-header.module.css';
 
